@@ -88,7 +88,11 @@ class ComexStatExportacoes:
     """Exportações brasileiras de ferro e aço (capítulo 72 do SH) por país e posição SH4.
 
     POST https://api-comexstat.mdic.gov.br/general  (documentação: /docs)
-    A API limita ~150 mil linhas por consulta, então consultamos um ano por vez.
+
+    A API tem dois limites: ~150 mil linhas por consulta e poucas consultas por
+    minuto (HTTP 429). Cada ano do capítulo 72 tem ~5 mil linhas, então pedimos
+    vários anos por consulta (padrão: 4) — a carga completa vira 3 requisições
+    em vez de 12, bem longe dos dois limites.
     """
 
     nome = "comexstat_exportacoes"
@@ -96,7 +100,9 @@ class ComexStatExportacoes:
 
     def __init__(self, settings: Settings, http: HttpClient | None = None) -> None:
         self.settings = settings
-        self.http = http or HttpClient(timeout=120)
+        # A API limita a frequência de chamadas e, ao estourar, pede ~10 s de espera.
+        # Espaçamos as requisições para nem chegar ao limite e toleramos mais tentativas.
+        self.http = http or HttpClient(timeout=120, max_tentativas=8, pausa_entre_requisicoes=12)
 
     def anos(self, marca_dagua: date | None, hoje: date) -> range:
         primeiro = self.settings.data_inicio.year
@@ -107,21 +113,29 @@ class ComexStatExportacoes:
             primeiro = max(primeiro, min(marca_dagua.year, recente))
         return range(primeiro, hoje.year + 1)
 
+    def blocos(self, marca_dagua: date | None, hoje: date) -> list[range]:
+        """Agrupa os anos em blocos consecutivos de até N anos (uma consulta por bloco)."""
+        anos = list(self.anos(marca_dagua, hoje))
+        n = max(1, self.settings.comex_anos_por_consulta)
+        return [range(anos[i], anos[min(i + n, len(anos)) - 1] + 1) for i in range(0, len(anos), n)]
+
     def extrair(self, marca_dagua: date | None, hoje: date) -> Iterator[Lote]:
-        for ano in self.anos(marca_dagua, hoje):
-            ultimo_mes = hoje.month if ano == hoje.year else 12
+        for bloco in self.blocos(marca_dagua, hoje):
+            inicio, fim = bloco[0], bloco[-1]
+            ultimo_mes = hoje.month if fim == hoje.year else 12
             corpo = {
                 "flow": "export",
                 "monthDetail": True,
-                "period": {"from": f"{ano}-01", "to": f"{ano}-{ultimo_mes:02d}"},
+                "period": {"from": f"{inicio}-01", "to": f"{fim}-{ultimo_mes:02d}"},
                 "filters": [{"filter": "chapter", "values": config.COMEX_CAPITULOS}],
                 "details": ["country", "heading"],
                 "metrics": ["metricFOB", "metricKG"],
             }
             resposta = self.http.post(self.url, json=corpo, params={"language": "pt"})
             registros = self._extrair_lista(resposta)
-            logger.info("Comex Stat %s → %d registros", ano, len(registros))
-            yield Lote(descricao=str(ano), requisicao=corpo, registros=registros)
+            descricao = str(inicio) if inicio == fim else f"{inicio}_{fim}"
+            logger.info("Comex Stat %s → %d registros", descricao, len(registros))
+            yield Lote(descricao=descricao, requisicao=corpo, registros=registros)
 
     @staticmethod
     def _extrair_lista(resposta: Any) -> list[dict]:
@@ -153,11 +167,11 @@ class ClimateTraceUsinas:
 
     def __init__(self, settings: Settings, http: HttpClient | None = None) -> None:
         self.settings = settings
-        self.http = http or HttpClient(status_vazio=(404,))
+        self.http = http or HttpClient(status_vazio=(404,), pausa_entre_requisicoes=1)
 
     def anos(self, marca_dagua: date | None, hoje: date) -> range:
         ultimo = hoje.year - 1
-        primeiro = self.settings.data_inicio.year
+        primeiro = max(self.settings.data_inicio.year, config.CLIMATE_TRACE_PRIMEIRO_ANO)
         if marca_dagua is not None:
             primeiro = max(primeiro, ultimo - self.settings.climate_trace_anos_reprocessar + 1)
         return range(primeiro, ultimo + 1)
@@ -168,7 +182,9 @@ class ClimateTraceUsinas:
                 "year": ano,
                 "gas": config.CLIMATE_TRACE_GAS,
                 "subsectors": config.CLIMATE_TRACE_SUBSETOR,
-                "countries": config.CLIMATE_TRACE_PAIS,
+                # O filtro de país desta API se chama gadmId (código ISO3, ex.: BRA).
+                # Nomes como "countries" são ignorados em silêncio → viria o mundo todo.
+                "gadmId": config.CLIMATE_TRACE_PAIS,
                 "limit": self.por_pagina,
             }
             registros: list[dict] = []

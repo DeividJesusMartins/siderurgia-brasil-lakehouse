@@ -74,20 +74,25 @@ def test_comex_anos_carga_completa_e_incremental(settings):
     assert fonte.anos(date(2022, 3, 1), HOJE) == range(2022, 2027)  # marca antiga
 
 
+def test_comex_agrupa_anos_em_blocos(settings):
+    fonte = ComexStatExportacoes(settings)
+    assert fonte.blocos(None, HOJE) == [range(2015, 2019), range(2019, 2023), range(2023, 2027)]
+    assert fonte.blocos(date(2026, 9, 1), HOJE) == [range(2025, 2027)]
+
+
 @responses.activate
 def test_comex_monta_corpo_e_le_envelope(settings, http):
     url = "https://api-comexstat.mdic.gov.br/general"
     responses.post(url, json={"data": {"list": [comex(2026, 1, "China", 100, 200)]}})
-    responses.post(url, json={"data": {"list": []}})
 
     lotes = list(ComexStatExportacoes(settings, http).extrair(date(2026, 9, 1), HOJE))
-    assert [len(lote.registros) for lote in lotes] == [1, 0]
+    assert [(lote.descricao, len(lote.registros)) for lote in lotes] == [("2025_2026", 1)]
 
-    corpo = json.loads(responses.calls[1].request.body)
+    corpo = json.loads(responses.calls[0].request.body)
     assert corpo["flow"] == "export"
-    assert corpo["period"] == {"from": "2026-01", "to": "2026-10"}  # ano corrente até o mês atual
+    assert corpo["period"] == {"from": "2025-01", "to": "2026-10"}  # até o mês atual
     assert corpo["filters"] == [{"filter": "chapter", "values": ["72"]}]
-    assert "language=pt" in responses.calls[1].request.url
+    assert "language=pt" in responses.calls[0].request.url
 
 
 def test_comex_rejeita_formato_desconhecido():
@@ -110,6 +115,11 @@ def test_climate_trace_pagina_ate_pagina_incompleta(settings, http):
     assert len(responses.calls) == 2
     assert "offset=2" in responses.calls[1].request.url
     assert "subsectors=iron-and-steel" in responses.calls[0].request.url
+    assert "gadmId=BRA" in responses.calls[0].request.url
+
+
+def test_climate_trace_comeca_no_primeiro_ano_com_dados(settings):
+    assert ClimateTraceUsinas(settings).anos(None, HOJE) == range(2021, 2026)
 
 
 def test_climate_trace_aceita_lista_dentro_de_objeto():

@@ -34,6 +34,7 @@ COMEX_CAPITULOS = ["72"]
 CLIMATE_TRACE_PAIS = "BRA"
 CLIMATE_TRACE_SUBSETOR = "iron-and-steel"
 CLIMATE_TRACE_GAS = "co2e_100yr"
+CLIMATE_TRACE_PRIMEIRO_ANO = 2021  # a API v7 não tem dados por usina antes disso
 
 # ----------------------------------------------------------------------------- Banco Central
 BCB_SERIE_DOLAR = 1  # Dólar americano (venda) - PTAX, R$/US$, diária
@@ -73,6 +74,10 @@ class Settings:
     )
     comex_anos_reprocessar: int = field(
         default_factory=lambda: int(os.getenv("COMEX_ANOS_REPROCESSAR", "2"))
+    )
+    # Anos pedidos por consulta ao Comex Stat (~5 mil linhas/ano; limite ~150 mil).
+    comex_anos_por_consulta: int = field(
+        default_factory=lambda: int(os.getenv("COMEX_ANOS_POR_CONSULTA", "4"))
     )
     climate_trace_anos_reprocessar: int = field(
         default_factory=lambda: int(os.getenv("CLIMATE_TRACE_ANOS_REPROCESSAR", "3"))
