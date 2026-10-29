@@ -1,0 +1,41 @@
+# Databricks Asset Bundle: infraestrutura como código para o Databricks.
+# Um comando empacota o código (wheel), cria/atualiza os Jobs e aponta para o ambiente certo.
+#
+#   databricks bundle validate            # confere a configuração
+#   databricks bundle deploy -t dev       # publica no seu workspace (agendas pausadas)
+#   databricks bundle run siderurgia_lakehouse_diario -t dev
+#   databricks bundle deploy -t prod      # produção (normalmente feito pelo CI/CD)
+
+bundle:
+  name: siderurgia_lakehouse
+
+include:
+  - resources/*.yml
+
+artifacts:
+  wheel:
+    type: whl
+    build: python -m build --wheel
+    path: .
+
+variables:
+  catalog:
+    description: Catálogo do Unity Catalog onde ficam os schemas bronze/silver/gold
+    default: siderurgia_lakehouse_dev
+
+targets:
+  dev:
+    # Modo development: prefixa recursos com [dev seu_usuario] e pausa as agendas,
+    # então cada pessoa do time pode ter sua cópia sem conflito.
+    mode: development
+    default: true
+    workspace:
+      host: https://SEU-WORKSPACE.cloud.databricks.com
+
+  prod:
+    mode: production
+    workspace:
+      host: https://SEU-WORKSPACE.cloud.databricks.com
+      root_path: /Workspace/Shared/.bundle/${bundle.name}/${bundle.target}
+    variables:
+      catalog: siderurgia_lakehouse

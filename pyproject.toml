@@ -1,0 +1,43 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "siderurgia-lakehouse"
+version = "1.0.0"
+description = "Pipeline de engenharia de dados (arquitetura medalhão) com dados públicos da siderurgia brasileira: produção (IBGE), exportações (MDIC), emissões (Climate TRACE) e câmbio (BCB)."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Deivid Martins" }]
+# PySpark NÃO entra como dependência obrigatória: no Databricks ele já vem no runtime,
+# e instalar outra versão por cima quebra o cluster. Localmente, use o extra [spark].
+dependencies = ["requests>=2.31"]
+
+[project.optional-dependencies]
+spark = ["pyspark>=3.5,<3.6", "delta-spark>=3.2,<3.3"]
+dev = ["pytest>=8", "pytest-cov>=5", "responses>=0.25", "ruff>=0.6", "build>=1.2", "pre-commit>=3.7"]
+
+[project.scripts]
+siderurgia-lakehouse = "siderurgia_lakehouse.main:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/siderurgia_lakehouse"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra -m 'not delta'"
+markers = ["delta: testes que exigem os JARs do Delta Lake (baixados do Maven na primeira execução)"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM", "N", "RUF"]
+# N812: convenção "F" do PySpark | RUF00x: acentos em português são intencionais
+ignore = ["RUF001", "RUF002", "RUF003", "N812"]
+
+[tool.coverage.run]
+source = ["siderurgia_lakehouse"]

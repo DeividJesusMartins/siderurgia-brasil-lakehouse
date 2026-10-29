@@ -1,0 +1,34 @@
+name: Deploy Databricks
+
+# Publica o bundle em produção quando a CI passa na main.
+# Configuração (Settings → Secrets and variables → Actions):
+#   variável  DATABRICKS_HOST   = https://seu-workspace.cloud.databricks.com
+#   secret    DATABRICKS_TOKEN  = token de um service principal
+# Sem a variável configurada, o job é simplesmente pulado (o repositório continua verde).
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    if: >-
+      vars.DATABRICKS_HOST != '' &&
+      (github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    environment: producao
+    env:
+      DATABRICKS_HOST: ${{ vars.DATABRICKS_HOST }}
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: databricks/setup-cli@main
+      - run: pip install build
+      - run: databricks bundle validate -t prod
+      - run: databricks bundle deploy -t prod

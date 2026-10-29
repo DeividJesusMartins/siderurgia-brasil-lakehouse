@@ -1,0 +1,137 @@
+resources:
+  jobs:
+    # ------------------------------------------------------------------ carga diária
+    # DAG: as 4 ingestões rodam em PARALELO (uma API lenta não atrasa as outras);
+    # cada silver depende só da sua bronze; a gold espera todas as silvers.
+    #
+    #   bronze_sidra ──────► silver_sidra ──────┐
+    #   bronze_comexstat ──► silver_comexstat ──┤
+    #   bronze_climatetrace► silver_climatetrace├──► gold
+    #   bronze_bcb ────────► silver_bcb ────────┘
+    siderurgia_lakehouse_diario:
+      name: siderurgia_lakehouse_diario
+      description: Produção (IBGE), exportações de aço (MDIC), emissões (Climate TRACE) e câmbio (BCB)
+      max_concurrent_runs: 1 # evita duas cargas escrevendo na mesma tabela ao mesmo tempo
+      schedule:
+        # Dias úteis às 7h30 (Brasília). As fontes mudam no máximo uma vez por dia.
+        quartz_cron_expression: "0 30 7 ? * MON-FRI"
+        timezone_id: America/Sao_Paulo
+      email_notifications:
+        on_failure:
+          - ${workspace.current_user.userName}
+      tags:
+        projeto: siderurgia_lakehouse
+        arquitetura: medalhao
+
+      # Computação serverless: sem cluster para configurar, cobra só pelo tempo de execução.
+      # Obs.: os jobs precisam de saída para a internet (apisidra.ibge.gov.br,
+      # api-comexstat.mdic.gov.br, api.climatetrace.org, api.bcb.gov.br). Se o workspace
+      # tiver política de rede restritiva para serverless, libere esses domínios.
+      environments:
+        - environment_key: padrao
+          spec:
+            environment_version: "2"
+            dependencies:
+              - ../dist/*.whl
+
+      tasks:
+        - task_key: bronze_sidra_pimpf
+          environment_key: padrao
+          max_retries: 2 # APIs públicas oscilam; nova tentativa após 5 min
+          min_retry_interval_millis: 300000
+          python_wheel_task:
+            package_name: siderurgia_lakehouse
+            entry_point: siderurgia-lakehouse
+            parameters: ["--camada", "bronze", "--fontes", "sidra_pimpf", "--catalog", "${var.catalog}"]
+
+        - task_key: bronze_comexstat_exportacoes
+          environment_key: padrao
+          max_retries: 2 # APIs públicas oscilam; nova tentativa após 5 min
+          min_retry_interval_millis: 300000
+          python_wheel_task:
+            package_name: siderurgia_lakehouse
+            entry_point: siderurgia-lakehouse
+            parameters: ["--camada", "bronze", "--fontes", "comexstat_exportacoes", "--catalog", "${var.catalog}"]
+
+        - task_key: bronze_climatetrace_usinas
+          environment_key: padrao
+          max_retries: 1 # APIs públicas oscilam; nova tentativa após 5 min
+          min_retry_interval_millis: 300000
+          python_wheel_task:
+            package_name: siderurgia_lakehouse
+            entry_point: siderurgia-lakehouse
+            parameters: ["--camada", "bronze", "--fontes", "climatetrace_usinas", "--catalog", "${var.catalog}"]
+
+        - task_key: bronze_bcb_cambio
+          environment_key: padrao
+          max_retries: 2 # APIs públicas oscilam; nova tentativa após 5 min
+          min_retry_interval_millis: 300000
+          python_wheel_task:
+            package_name: siderurgia_lakehouse
+            entry_point: siderurgia-lakehouse
+            parameters: ["--camada", "bronze", "--fontes", "bcb_cambio", "--catalog", "${var.catalog}"]
+
+        - task_key: silver_sidra_pimpf
+          depends_on: [{ task_key: bronze_sidra_pimpf }]
+          environment_key: padrao
+          python_wheel_task:
+            package_name: siderurgia_lakehouse
+            entry_point: siderurgia-lakehouse
+            parameters: ["--camada", "silver", "--fontes", "sidra_pimpf", "--catalog", "${var.catalog}"]
+
+        - task_key: silver_comexstat_exportacoes
+          depends_on: [{ task_key: bronze_comexstat_exportacoes }]
+          environment_key: padrao
+          python_wheel_task:
+            package_name: siderurgia_lakehouse
+            entry_point: siderurgia-lakehouse
+            parameters: ["--camada", "silver", "--fontes", "comexstat_exportacoes", "--catalog", "${var.catalog}"]
+
+        - task_key: silver_climatetrace_usinas
+          depends_on: [{ task_key: bronze_climatetrace_usinas }]
+          environment_key: padrao
+          python_wheel_task:
+            package_name: siderurgia_lakehouse
+            entry_point: siderurgia-lakehouse
+            parameters: ["--camada", "silver", "--fontes", "climatetrace_usinas", "--catalog", "${var.catalog}"]
+
+        - task_key: silver_bcb_cambio
+          depends_on: [{ task_key: bronze_bcb_cambio }]
+          environment_key: padrao
+          python_wheel_task:
+            package_name: siderurgia_lakehouse
+            entry_point: siderurgia-lakehouse
+            parameters: ["--camada", "silver", "--fontes", "bcb_cambio", "--catalog", "${var.catalog}"]
+
+        - task_key: gold
+          depends_on: [{ task_key: silver_sidra_pimpf }, { task_key: silver_comexstat_exportacoes }, { task_key: silver_climatetrace_usinas }, { task_key: silver_bcb_cambio }]
+          environment_key: padrao
+          # Se uma fonte falhar (ex.: Climate TRACE, API beta), a gold roda mesmo assim
+          # com o último dado bom de cada silver. O job continua marcado como falho.
+          run_if: AT_LEAST_ONE_SUCCESS
+          python_wheel_task:
+            package_name: siderurgia_lakehouse
+            entry_point: siderurgia-lakehouse
+            parameters: ["--camada", "gold", "--catalog", "${var.catalog}"]
+
+    # ------------------------------------------------------------------ manutenção semanal
+    siderurgia_lakehouse_manutencao:
+      name: siderurgia_lakehouse_manutencao
+      description: OPTIMIZE + ZORDER + VACUUM nas tabelas bronze e silver
+      max_concurrent_runs: 1
+      schedule:
+        quartz_cron_expression: "0 0 3 ? * SUN"
+        timezone_id: America/Sao_Paulo
+      environments:
+        - environment_key: padrao
+          spec:
+            environment_version: "2"
+            dependencies:
+              - ../dist/*.whl
+      tasks:
+        - task_key: manutencao
+          environment_key: padrao
+          python_wheel_task:
+            package_name: siderurgia_lakehouse
+            entry_point: siderurgia-lakehouse
+            parameters: ["--camada", "manutencao", "--catalog", "${var.catalog}"]

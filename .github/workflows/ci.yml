@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  qualidade:
+    name: Lint e testes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11" # mesma versão do Databricks Runtime 15.4 LTS / serverless
+          cache: pip
+
+      - uses: actions/setup-java@v4 # o Spark roda na JVM
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Instalar dependências
+        run: pip install -e ".[dev,spark]"
+
+      - name: Lint (ruff)
+        run: |
+          ruff check .
+          ruff format --check .
+
+      - name: Testes unitários e de fluxo
+        run: pytest --cov --cov-report=term-missing
+
+      - name: Testes de integração com Delta Lake
+        run: pytest -m delta
+
+      - name: Build do wheel
+        run: python -m build --wheel

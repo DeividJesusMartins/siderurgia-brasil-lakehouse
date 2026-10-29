@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+dist/
+build/
+
+# Testes / lint
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Dados locais (nunca versionar dados)
+lakehouse/
+spark-warehouse/
+metastore_db/
+derby.log
+
+# Databricks
+.databricks/
+
+# Ambiente / IDE
+.env
+.idea/
+.vscode/
+.DS_Store
