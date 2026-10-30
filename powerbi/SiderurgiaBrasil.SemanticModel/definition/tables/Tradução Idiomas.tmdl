@@ -1,0 +1,61 @@
+table 'Tradução Idiomas'
+	lineageTag: d68a5d46-812d-46cc-8ed7-61db115808f1
+
+	column Ordem
+		formatString: 0
+		lineageTag: 5705df27-6a4b-4b5c-aeeb-4a7b7472962d
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Ordem]
+
+		annotation SummarizationSetBy = User
+
+	column IdiomaID
+		lineageTag: 0b347921-1389-4e7a-8e8e-0b55a282d580
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [IdiomaID]
+		sortByColumn: Ordem
+
+		annotation SummarizationSetBy = Automatic
+
+	column Idioma
+		lineageTag: aca8a204-5778-4525-bb5f-c3345568db47
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Idioma]
+
+		annotation SummarizationSetBy = Automatic
+
+	column DefaultCulture
+		lineageTag: 2df61603-7657-473d-aa90-b0fbdbd0849d
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [DefaultCulture]
+
+		annotation SummarizationSetBy = Automatic
+
+	column IdiomaTradução
+		lineageTag: e4d05d5c-157c-46d9-9e6d-777651450070
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [IdiomaTradução]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Tradução Idiomas' = calculated
+		mode: import
+		source =
+				DATATABLE(
+				    "Ordem", INTEGER,
+				    "IdiomaID", STRING,
+				    "Idioma", STRING,
+				    "DefaultCulture", STRING,
+				    "IdiomaTradução", STRING,
+				    {
+				        {1, "pt", "Portuguese", "pt-BR", "Português"},
+				        {2, "en", "English", "en-US", "English"},
+				        {3, "es", "Spanish", "es-ES", "Español"}
+				    }
+				)
+

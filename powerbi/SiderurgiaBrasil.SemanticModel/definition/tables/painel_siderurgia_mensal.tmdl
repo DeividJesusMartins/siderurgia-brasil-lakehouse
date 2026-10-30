@@ -1,0 +1,179 @@
+table painel_siderurgia_mensal
+	lineageTag: 2c681439-efd6-4f5a-911b-f994843d3662
+
+	column mes_referencia
+		dataType: dateTime
+		isHidden
+		formatString: mmm/yyyy
+		lineageTag: 0b18b17c-5b95-42cd-a929-b90f2eabc664
+		summarizeBy: none
+		sourceColumn: mes_referencia
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column ano
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: e3068714-e01b-462c-914c-4f320ee12eb6
+		summarizeBy: none
+		sourceColumn: ano
+
+		annotation SummarizationSetBy = Automatic
+
+	column mes
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 93388b82-7cde-4e7d-a778-38090d9e338b
+		summarizeBy: none
+		sourceColumn: mes
+
+		annotation SummarizationSetBy = Automatic
+
+	column indice_metalurgia
+		dataType: double
+		formatString: #,0.0
+		lineageTag: 496f2b9c-9e7d-4d3c-891b-4543ce28d7eb
+		summarizeBy: average
+		sourceColumn: indice_metalurgia
+
+		annotation SummarizationSetBy = Automatic
+
+	column indice_metalurgia_sa
+		dataType: double
+		formatString: #,0.0
+		lineageTag: 4fabcded-ddba-4530-8188-feeccaeb0e1b
+		summarizeBy: average
+		sourceColumn: indice_metalurgia_sa
+
+		annotation SummarizationSetBy = Automatic
+
+	column metalurgia_var_12m_pct
+		dataType: double
+		formatString: #,0.0
+		lineageTag: 3d88502f-8440-48c1-bf87-c001c8f61c50
+		summarizeBy: average
+		sourceColumn: metalurgia_var_12m_pct
+
+		annotation SummarizationSetBy = Automatic
+
+	column indice_transformacao
+		dataType: double
+		formatString: #,0.0
+		lineageTag: 2118b950-43f8-4e71-b8fd-1c46e18d04a8
+		summarizeBy: average
+		sourceColumn: indice_transformacao
+
+		annotation SummarizationSetBy = Automatic
+
+	column indice_industria_geral
+		dataType: double
+		formatString: #,0.0
+		lineageTag: d7be35c3-7d0c-408a-a0ba-91977adfe8af
+		summarizeBy: average
+		sourceColumn: indice_industria_geral
+
+		annotation SummarizationSetBy = Automatic
+
+	column exportacao_t
+		dataType: double
+		formatString: #,0
+		lineageTag: 4337233d-80d0-424d-90a1-1db91fdacf8f
+		summarizeBy: sum
+		sourceColumn: exportacao_t
+
+		annotation SummarizationSetBy = Automatic
+
+	column exportacao_fob_usd
+		dataType: double
+		formatString: #,0
+		lineageTag: baee2f18-9ecf-4e24-ae97-f8d8d66905be
+		summarizeBy: sum
+		sourceColumn: exportacao_fob_usd
+
+		annotation SummarizationSetBy = Automatic
+
+	column exportacao_fob_brl
+		dataType: double
+		formatString: #,0
+		lineageTag: bf3e7d51-f2a6-4efe-b997-c8d8f1b08fd7
+		summarizeBy: sum
+		sourceColumn: exportacao_fob_brl
+
+		annotation SummarizationSetBy = Automatic
+
+	column preco_medio_usd_t
+		dataType: double
+		formatString: #,0
+		lineageTag: 153e58c6-2131-4d9a-8208-9d6da685cf7f
+		summarizeBy: average
+		sourceColumn: preco_medio_usd_t
+
+		annotation SummarizationSetBy = Automatic
+
+	column dolar_medio
+		dataType: double
+		formatString: 0.0000
+		lineageTag: 13e90d3f-f6d2-448e-9587-87b0872b464b
+		summarizeBy: average
+		sourceColumn: dolar_medio
+
+		annotation SummarizationSetBy = Automatic
+
+	column qtd_paises_destino
+		dataType: int64
+		formatString: 0
+		lineageTag: 3ace7859-ef04-401f-bd1d-51294ace400d
+		summarizeBy: none
+		sourceColumn: qtd_paises_destino
+
+		annotation SummarizationSetBy = Automatic
+
+	column exportacao_t_var_12m_pct
+		dataType: double
+		formatString: #,0.0
+		lineageTag: 92f00290-745a-4b87-9645-1e6f8f6ba513
+		summarizeBy: average
+		sourceColumn: exportacao_t_var_12m_pct
+
+		annotation SummarizationSetBy = Automatic
+
+	column mes_fechado
+		dataType: boolean
+		lineageTag: 3a605511-29ad-42b6-b4f9-69b6a48f06b1
+		summarizeBy: none
+		sourceColumn: mes_fechado
+
+		annotation SummarizationSetBy = Automatic
+
+	partition painel_siderurgia_mensal = m
+		mode: import
+		source =
+				let
+				    Fonte = Parquet.Document(File.Contents(PastaDados & "painel_siderurgia_mensal.parquet")),
+				    Tipos = Table.TransformColumnTypes(Fonte, {
+				        {"mes_referencia", type date},
+				        {"ano", Int64.Type},
+				        {"mes", Int64.Type},
+				        {"indice_metalurgia", type number},
+				        {"indice_metalurgia_sa", type number},
+				        {"metalurgia_var_12m_pct", type number},
+				        {"indice_transformacao", type number},
+				        {"indice_industria_geral", type number},
+				        {"exportacao_t", type number},
+				        {"exportacao_fob_usd", type number},
+				        {"exportacao_fob_brl", type number},
+				        {"preco_medio_usd_t", type number},
+				        {"dolar_medio", type number},
+				        {"qtd_paises_destino", Int64.Type},
+				        {"exportacao_t_var_12m_pct", type number},
+				        {"mes_fechado", type logical}
+				    })
+				in
+				    Tipos
+
+	annotation PBI_ResultType = Table
+

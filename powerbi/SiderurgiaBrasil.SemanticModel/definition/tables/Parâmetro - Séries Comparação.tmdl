@@ -1,0 +1,60 @@
+table 'Parâmetro - Séries Comparação'
+	lineageTag: 63c69926-1c18-4142-8e60-ec087e41773f
+
+	column Descrição
+		lineageTag: 9ef239f1-bf83-487a-8d54-49e374304784
+		summarizeBy: none
+		sourceColumn: [Value1]
+		sortByColumn: Ordem
+
+		relatedColumnDetails
+			groupByColumn: Tradução
+
+		annotation SummarizationSetBy = Automatic
+
+	column Tradução
+		lineageTag: 4e49e93e-7b36-431a-9875-e1017439791d
+		summarizeBy: none
+		sourceColumn: [Value2]
+		sortByColumn: Ordem
+
+		extendedProperty ParameterMetadata =
+				{
+				  "version": 3,
+				  "kind": 2
+				}
+
+		annotation SummarizationSetBy = Automatic
+
+	column Ordem
+		isHidden
+		formatString: 0
+		lineageTag: bfd07e5b-bde1-4e06-bc49-f6f420aa7391
+		summarizeBy: none
+		sourceColumn: [Value3]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Idioma
+		isHidden
+		lineageTag: 8e6da568-6c0c-4e73-9a5c-90e33a3a764e
+		summarizeBy: none
+		sourceColumn: [Value4]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Parâmetro - Séries Comparação' = calculated
+		mode: import
+		source =
+				{
+				    ("Metalurgia (dessaz.)", NAMEOF(_Medidas[Índice Metalurgia (dessaz.)]), 0, "pt"),
+				    ("Transformação (dessaz.)", NAMEOF(_Medidas[Índice Transformação (dessaz.)]), 1, "pt"),
+				    ("Indústria geral (dessaz.)", NAMEOF(_Medidas[Índice Indústria Geral (dessaz.)]), 2, "pt"),
+				    ("Metallurgy (SA)", NAMEOF(_Medidas[Índice Metalurgia (dessaz.)]), 0, "en"),
+				    ("Manufacturing (SA)", NAMEOF(_Medidas[Índice Transformação (dessaz.)]), 1, "en"),
+				    ("Total industry (SA)", NAMEOF(_Medidas[Índice Indústria Geral (dessaz.)]), 2, "en"),
+				    ("Metalurgia (desest.)", NAMEOF(_Medidas[Índice Metalurgia (dessaz.)]), 0, "es"),
+				    ("Transformación (desest.)", NAMEOF(_Medidas[Índice Transformação (dessaz.)]), 1, "es"),
+				    ("Industria general (desest.)", NAMEOF(_Medidas[Índice Indústria Geral (dessaz.)]), 2, "es")
+				}
+

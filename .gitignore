@@ -27,3 +27,8 @@ derby.log
 .idea/
 .vscode/
 .DS_Store
+
+# Power BI (PBIP): cache local e configurações do usuário
+**/.pbi/localSettings.json
+**/.pbi/cache.abf
+exports/

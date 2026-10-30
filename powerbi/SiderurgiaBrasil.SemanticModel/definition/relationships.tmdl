@@ -1,0 +1,56 @@
+relationship 4aab686a-2dd0-49be-918c-1664ff2e76bd
+	fromColumn: fato_producao_industrial.mes_referencia
+	toColumn: dim_calendario.mes_referencia
+
+relationship 43983eb5-7ae2-4ab8-a424-4bb3ff1885e4
+	fromColumn: fato_producao_industrial.atividade_codigo
+	toColumn: dim_atividade.atividade_codigo
+
+relationship 323c23b7-5892-46a1-a8a9-7738e3162771
+	fromColumn: fato_exportacao_aco.mes_referencia
+	toColumn: dim_calendario.mes_referencia
+
+relationship cdd5ae56-9205-495a-aa76-33ab88ec4682
+	fromColumn: painel_siderurgia_mensal.mes_referencia
+	toColumn: dim_calendario.mes_referencia
+
+relationship 338509c8-fcdd-4620-8a41-7993ac61e06d
+	fromColumn: 'Tradução Textos'.idioma
+	toColumn: 'Tradução Idiomas'.IdiomaID
+
+relationship 9a0056f0-d4a2-44fb-b5fd-df77a6893134
+	fromColumn: 'Parâmetro - Tradução Meses'.Idioma
+	toColumn: 'Tradução Idiomas'.IdiomaID
+
+relationship e721fc28-4bb7-4678-a4a1-0d49c6f73a72
+	fromColumn: 'Parâmetro - Séries Visão Geral'.Idioma
+	toColumn: 'Tradução Idiomas'.IdiomaID
+
+relationship eaa80a1a-acff-4fdb-bc12-7b0847a1d49b
+	fromColumn: 'Parâmetro - Séries Comparação'.Idioma
+	toColumn: 'Tradução Idiomas'.IdiomaID
+
+relationship 693effbc-78e0-42a0-8112-df60c35fd699
+	fromColumn: 'Parâmetro - Séries Metalurgia'.Idioma
+	toColumn: 'Tradução Idiomas'.IdiomaID
+
+relationship 8149754e-a014-4aee-bcff-53742b88fe30
+	fromColumn: 'Parâmetro - Volume Exportado'.Idioma
+	toColumn: 'Tradução Idiomas'.IdiomaID
+
+relationship f817d6e4-9b8f-40c0-8724-ca28b8929a33
+	fromColumn: 'Parâmetro - Dólar Médio'.Idioma
+	toColumn: 'Tradução Idiomas'.IdiomaID
+
+relationship 876bcaba-0945-46ee-8697-17394d38547e
+	fromColumn: 'Parâmetro - Tabela Atividades'.Idioma
+	toColumn: 'Tradução Idiomas'.IdiomaID
+
+relationship 367353f6-f853-457f-aac8-56cc67c6a29b
+	fromColumn: 'Parâmetro - Tabela Destinos'.Idioma
+	toColumn: 'Tradução Idiomas'.IdiomaID
+
+relationship 86cc63e0-766c-4fc3-894a-1ee6887e60c3
+	fromColumn: 'Parâmetro - Tabela Usinas'.Idioma
+	toColumn: 'Tradução Idiomas'.IdiomaID
+

@@ -1,0 +1,78 @@
+table fato_producao_industrial
+	lineageTag: e508481d-46a3-40e5-afcb-7fb3c22ce558
+
+	column atividade_codigo
+		dataType: string
+		isHidden
+		lineageTag: fc4e9089-d71f-4a16-9cce-8db1a472fe8b
+		summarizeBy: none
+		sourceColumn: atividade_codigo
+
+		annotation SummarizationSetBy = Automatic
+
+	column mes_referencia
+		dataType: dateTime
+		isHidden
+		formatString: mmm/yyyy
+		lineageTag: 7c9aa469-3cee-46be-9dde-15567f40c4ed
+		summarizeBy: none
+		sourceColumn: mes_referencia
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column indice
+		dataType: double
+		formatString: #,0.0
+		lineageTag: acc1c010-b7cb-43f4-a564-fd5e35fd4d5c
+		summarizeBy: average
+		sourceColumn: indice
+
+		annotation SummarizationSetBy = Automatic
+
+	column indice_sa
+		dataType: double
+		formatString: #,0.0
+		lineageTag: 8e09e990-0b3d-47c6-8175-5cf22f739e6f
+		summarizeBy: average
+		sourceColumn: indice_sa
+
+		annotation SummarizationSetBy = Automatic
+
+	column var_12m_pct
+		dataType: double
+		formatString: #,0.0
+		lineageTag: dd837721-b1a0-45f1-bfc5-f0e292dd68c5
+		summarizeBy: average
+		sourceColumn: var_12m_pct
+
+		annotation SummarizationSetBy = Automatic
+
+	column media_movel_3m_sa
+		dataType: double
+		formatString: #,0.0
+		lineageTag: ada60949-77d7-4070-ac11-fe7f38eb0250
+		summarizeBy: average
+		sourceColumn: media_movel_3m_sa
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fato_producao_industrial = m
+		mode: import
+		source =
+				let
+				    Fonte = Parquet.Document(File.Contents(PastaDados & "fato_producao_industrial.parquet")),
+				    Tipos = Table.TransformColumnTypes(Fonte, {
+				        {"atividade_codigo", type text},
+				        {"mes_referencia", type date},
+				        {"indice", type number},
+				        {"indice_sa", type number},
+				        {"var_12m_pct", type number},
+				        {"media_movel_3m_sa", type number}
+				    })
+				in
+				    Tipos
+
+	annotation PBI_ResultType = Table
+

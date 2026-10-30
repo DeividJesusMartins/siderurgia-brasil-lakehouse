@@ -1,0 +1,110 @@
+table dim_calendario
+	lineageTag: 6748ae39-aab0-4fd1-9a65-848dd4ab959a
+
+	column mes_referencia
+		dataType: dateTime
+		formatString: mmm/yyyy
+		lineageTag: 877b6432-40df-4202-925b-0708795149d2
+		summarizeBy: none
+		sourceColumn: mes_referencia
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column ano
+		dataType: int64
+		formatString: 0
+		lineageTag: f30333d4-1ae3-47cf-99e2-e905612d320d
+		summarizeBy: none
+		sourceColumn: ano
+
+		annotation SummarizationSetBy = Automatic
+
+	column mes
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: b644a9e3-a910-4741-ae55-926b3b2d487b
+		summarizeBy: none
+		sourceColumn: mes
+
+		annotation SummarizationSetBy = Automatic
+
+	column trimestre
+		dataType: int64
+		formatString: 0
+		lineageTag: 0be1b703-717e-4c36-bcc3-ad0e6e1bd6ee
+		summarizeBy: none
+		sourceColumn: trimestre
+
+		annotation SummarizationSetBy = Automatic
+
+	column semestre
+		dataType: int64
+		formatString: 0
+		lineageTag: 597f32e8-97e5-4a93-bb56-11845c8f659e
+		summarizeBy: none
+		sourceColumn: semestre
+
+		annotation SummarizationSetBy = Automatic
+
+	column ano_mes
+		dataType: string
+		lineageTag: 9c32dba2-a15b-4331-bf85-e805dab3a5c2
+		summarizeBy: none
+		sourceColumn: ano_mes
+		sortByColumn: mes_referencia
+
+		annotation SummarizationSetBy = Automatic
+
+	column nome_mes
+		dataType: string
+		lineageTag: 1f2c6763-f50e-4a1b-b38c-6b63ff0227a2
+		summarizeBy: none
+		sourceColumn: nome_mes
+		sortByColumn: mes
+
+		annotation SummarizationSetBy = Automatic
+
+	column nome_mes_en
+		dataType: string
+		lineageTag: 908408e5-a89b-4f5d-bbc4-1c737017fcfe
+		summarizeBy: none
+		sourceColumn: nome_mes_en
+		sortByColumn: mes
+
+		annotation SummarizationSetBy = Automatic
+
+	column nome_mes_es
+		dataType: string
+		lineageTag: 9d47c0fe-23fa-4101-b32b-9b09dd849c97
+		summarizeBy: none
+		sourceColumn: nome_mes_es
+		sortByColumn: mes
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_calendario = m
+		mode: import
+		source =
+				let
+				    Fonte = Parquet.Document(File.Contents(PastaDados & "dim_calendario.parquet")),
+				    Tipos = Table.TransformColumnTypes(Fonte, {
+				        {"mes_referencia", type date},
+				        {"ano", Int64.Type},
+				        {"mes", Int64.Type},
+				        {"trimestre", Int64.Type},
+				        {"semestre", Int64.Type},
+				        {"ano_mes", type text},
+				        {"nome_mes", type text}
+				    }),
+				    MesesEN = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"},
+				    MesesES = {"Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"},
+				    ComEN = Table.AddColumn(Tipos, "nome_mes_en", each MesesEN{[mes] - 1}, type text),
+				    ComES = Table.AddColumn(ComEN, "nome_mes_es", each MesesES{[mes] - 1}, type text)
+				in
+				    ComES
+
+	annotation PBI_ResultType = Table
+

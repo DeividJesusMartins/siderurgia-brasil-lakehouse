@@ -1,6 +1,6 @@
 # 🏭 Siderurgia Brasil Lakehouse
 
-[![CI](https://github.com/SEU_USUARIO/siderurgia-brasil-lakehouse/actions/workflows/ci.yml/badge.svg)](https://github.com/SEU_USUARIO/siderurgia-brasil-lakehouse/actions/workflows/ci.yml)
+[![CI](https://github.com/DeividJesusMartins/siderurgia-brasil-lakehouse/actions/workflows/ci.yml/badge.svg)](https://github.com/DeividJesusMartins/siderurgia-brasil-lakehouse/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)
 ![PySpark](https://img.shields.io/badge/PySpark-3.5-E25A1C?logo=apachespark&logoColor=white)
 ![Delta Lake](https://img.shields.io/badge/Delta_Lake-3.2-00ADD4)
@@ -116,7 +116,12 @@ siderurgia-brasil-lakehouse/
 ├── resources/jobs.yml         # Jobs do Databricks (DAG)
 ├── databricks.yml             # Asset Bundle (targets dev/prod)
 ├── sql/                       # setup do Unity Catalog + consultas analíticas
-├── docs/modelo_de_dados.md    # dicionário de dados
+├── scripts/exportar_powerbi.py # exporta a gold em Parquet para o Power BI
+├── powerbi/                   # dashboard Power BI (PBIP: TMDL + PBIR)
+├── docs/
+│   ├── modelo_de_dados.md     # dicionário de dados
+│   ├── dashboard.md           # guia do dashboard
+│   └── img/                   # logo do projeto
 ├── .github/workflows/         # CI e deploy
 └── Makefile
 ```
@@ -128,7 +133,7 @@ siderurgia-brasil-lakehouse/
 Pré-requisitos: Python 3.10+ e Java 17 (o Spark roda na JVM).
 
 ```bash
-git clone https://github.com/SEU_USUARIO/siderurgia-brasil-lakehouse.git
+git clone https://github.com/DeividJesusMartins/siderurgia-brasil-lakehouse.git
 cd siderurgia-brasil-lakehouse
 python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
 make install          # ou: pip install -e ".[dev,spark]"
@@ -159,6 +164,18 @@ databricks bundle run siderurgia_lakehouse_diario -t dev
 
 Depois, explore com as consultas de [`sql/01_consultas_gold.sql`](sql/01_consultas_gold.sql) ou conecte o Power BI no SQL Warehouse em `siderurgia_lakehouse.gold`.
 
+## 📈 Dashboard Power BI
+
+Relatório em **PBIP** (versionável no Git) com 4 páginas — **Visão Geral, Produção, Exportações e Emissões** — sobre a camada gold:
+- KPIs de 12 meses com variação (▲/▼) e data de referência;
+- produção dessazonalizada da metalurgia × indústria, exportações × câmbio, top destinos/produtos e ranking de emissões por usina;
+- **tradução pt / en / es** dirigida por tabelas e medidas, navegação em pílulas e filtros por página.
+
+```bash
+python scripts/exportar_powerbi.py   # gera os .parquet da gold em ./exports
+```
+Depois, abra `powerbi/SiderurgiaBrasil.pbip`, aponte o parâmetro `PastaDados` para a pasta dos `.parquet` e clique em **Atualizar**. Detalhes em [`docs/dashboard.md`](docs/dashboard.md).
+
 ## 📊 Fontes
 
 | Fonte | Endpoint | Recorte |
@@ -182,7 +199,8 @@ Depois, explore com as consultas de [`sql/01_consultas_gold.sql`](sql/01_consult
 
 ## 🔭 Próximos passos
 
-- [ ] Dashboard no Power BI / Databricks AI/BI sobre a gold
+- [x] Dashboard no Power BI sobre a gold (PBIP, pt/en/es)
+- [ ] Versão do dashboard em Databricks AI/BI
 - [ ] Importações de aço (mesma API, `flow: import`) e balança comercial do setor
 - [ ] Migrar a silver para Lakeflow Declarative Pipelines com *expectations* nativas
 - [ ] Produção física em toneladas (Instituto Aço Brasil) para calcular intensidade de emissões
@@ -190,6 +208,6 @@ Depois, explore com as consultas de [`sql/01_consultas_gold.sql`](sql/01_consult
 ## 👤 Autor
 
 **Deivid Martins** — Analista de Dados com foco em Engenharia de Dados (Databricks, PySpark, SQL, Power BI), atuando em projetos de dados para o setor siderúrgico.
-[LinkedIn](https://www.linkedin.com/in/deividmartins) · [GitHub](https://github.com/SEU_USUARIO)
+[LinkedIn](https://www.linkedin.com/in/deividmartins) · [GitHub](https://github.com/DeividJesusMartins)
 
 Licença [MIT](LICENSE).

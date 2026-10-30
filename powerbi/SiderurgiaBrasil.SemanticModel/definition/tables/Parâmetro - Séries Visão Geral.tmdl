@@ -1,0 +1,57 @@
+table 'Parâmetro - Séries Visão Geral'
+	lineageTag: 9b4bf8bb-8fc5-4c59-bb6d-49511625c8e2
+
+	column Descrição
+		lineageTag: 020fbc1a-f5c6-47b7-ad16-41591143dc4d
+		summarizeBy: none
+		sourceColumn: [Value1]
+		sortByColumn: Ordem
+
+		relatedColumnDetails
+			groupByColumn: Tradução
+
+		annotation SummarizationSetBy = Automatic
+
+	column Tradução
+		lineageTag: 9ff615d8-ce0c-43a0-995e-68715eb871bc
+		summarizeBy: none
+		sourceColumn: [Value2]
+		sortByColumn: Ordem
+
+		extendedProperty ParameterMetadata =
+				{
+				  "version": 3,
+				  "kind": 2
+				}
+
+		annotation SummarizationSetBy = Automatic
+
+	column Ordem
+		isHidden
+		formatString: 0
+		lineageTag: f251d236-4b08-4eb8-9bd3-e449aa8b80a1
+		summarizeBy: none
+		sourceColumn: [Value3]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Idioma
+		isHidden
+		lineageTag: 4ee2a8d5-b546-479a-b50f-eca9134999c0
+		summarizeBy: none
+		sourceColumn: [Value4]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Parâmetro - Séries Visão Geral' = calculated
+		mode: import
+		source =
+				{
+				    ("Metalurgia (dessaz.)", NAMEOF(_Medidas[Índice Metalurgia (dessaz.)]), 0, "pt"),
+				    ("Transformação (dessaz.)", NAMEOF(_Medidas[Índice Transformação (dessaz.)]), 1, "pt"),
+				    ("Metallurgy (SA)", NAMEOF(_Medidas[Índice Metalurgia (dessaz.)]), 0, "en"),
+				    ("Manufacturing (SA)", NAMEOF(_Medidas[Índice Transformação (dessaz.)]), 1, "en"),
+				    ("Metalurgia (desest.)", NAMEOF(_Medidas[Índice Metalurgia (dessaz.)]), 0, "es"),
+				    ("Transformación (desest.)", NAMEOF(_Medidas[Índice Transformação (dessaz.)]), 1, "es")
+				}
+

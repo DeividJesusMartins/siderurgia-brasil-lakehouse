@@ -1,0 +1,60 @@
+table 'Parâmetro - Tabela Atividades'
+	lineageTag: dca6b771-ddac-4515-a380-66be110d9736
+
+	column Descrição
+		lineageTag: f1809335-128a-44d1-af56-63c54c984067
+		summarizeBy: none
+		sourceColumn: [Value1]
+		sortByColumn: Ordem
+
+		relatedColumnDetails
+			groupByColumn: Tradução
+
+		annotation SummarizationSetBy = Automatic
+
+	column Tradução
+		lineageTag: cd26c466-c487-4891-aff2-8442897b056f
+		summarizeBy: none
+		sourceColumn: [Value2]
+		sortByColumn: Ordem
+
+		extendedProperty ParameterMetadata =
+				{
+				  "version": 3,
+				  "kind": 2
+				}
+
+		annotation SummarizationSetBy = Automatic
+
+	column Ordem
+		isHidden
+		formatString: 0
+		lineageTag: 7e2370f9-1ef2-4374-b4eb-3c10036080b9
+		summarizeBy: none
+		sourceColumn: [Value3]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Idioma
+		isHidden
+		lineageTag: 1c39090e-0792-486f-91a0-1f511c4afafb
+		summarizeBy: none
+		sourceColumn: [Value4]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Parâmetro - Tabela Atividades' = calculated
+		mode: import
+		source =
+				{
+				    ("Atividade", NAMEOF(dim_atividade[atividade_nome]), 0, "pt"),
+				    ("Índice", NAMEOF(_Medidas[Atividade Índice (último mês)]), 1, "pt"),
+				    ("Var. 12m", NAMEOF(_Medidas[Atividade Var. 12m % (último mês)]), 2, "pt"),
+				    ("Activity", NAMEOF(dim_atividade[atividade_nome]), 0, "en"),
+				    ("Index", NAMEOF(_Medidas[Atividade Índice (último mês)]), 1, "en"),
+				    ("12m chg.", NAMEOF(_Medidas[Atividade Var. 12m % (último mês)]), 2, "en"),
+				    ("Actividad", NAMEOF(dim_atividade[atividade_nome]), 0, "es"),
+				    ("Índice", NAMEOF(_Medidas[Atividade Índice (último mês)]), 1, "es"),
+				    ("Var. 12m", NAMEOF(_Medidas[Atividade Var. 12m % (último mês)]), 2, "es")
+				}
+

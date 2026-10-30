@@ -1,0 +1,107 @@
+table fato_exportacao_aco
+	lineageTag: 0dfbefb5-6784-40c1-9575-25ef0a239495
+
+	column mes_referencia
+		dataType: dateTime
+		isHidden
+		formatString: mmm/yyyy
+		lineageTag: 2a3faf3d-d082-4a2e-b2b7-15dfbecfdf89
+		summarizeBy: none
+		sourceColumn: mes_referencia
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column pais
+		dataType: string
+		lineageTag: b19517c8-ad84-4d91-9f8b-5d17d54f0503
+		summarizeBy: none
+		sourceColumn: pais
+
+		annotation SummarizationSetBy = Automatic
+
+	column sh4_codigo
+		dataType: string
+		lineageTag: 7efb3294-0ea5-4338-b347-7a53ee147883
+		summarizeBy: none
+		sourceColumn: sh4_codigo
+
+		annotation SummarizationSetBy = Automatic
+
+	column sh4_descricao
+		dataType: string
+		lineageTag: fc9c4a11-0ff3-44b6-9a87-38f0405a4804
+		summarizeBy: none
+		sourceColumn: sh4_descricao
+
+		annotation SummarizationSetBy = Automatic
+
+	column valor_fob_usd
+		dataType: double
+		formatString: #,0
+		lineageTag: 81786ca4-b3cc-43bc-97ea-2ae3fdd73ce1
+		summarizeBy: sum
+		sourceColumn: valor_fob_usd
+
+		annotation SummarizationSetBy = Automatic
+
+	column peso_t
+		dataType: double
+		formatString: #,0.0
+		lineageTag: fcb649a0-351e-4869-949d-8cb8579f2c5b
+		summarizeBy: sum
+		sourceColumn: peso_t
+
+		annotation SummarizationSetBy = Automatic
+
+	column preco_medio_usd_t
+		dataType: double
+		isHidden
+		formatString: #,0
+		lineageTag: fd4b0cdb-cf4a-4033-a972-c6309ba0a244
+		summarizeBy: none
+		sourceColumn: preco_medio_usd_t
+
+		annotation SummarizationSetBy = Automatic
+
+	column dolar_medio
+		dataType: double
+		isHidden
+		formatString: 0.0000
+		lineageTag: 17a09a84-36ea-4051-afb6-a54bdabb603e
+		summarizeBy: none
+		sourceColumn: dolar_medio
+
+		annotation SummarizationSetBy = Automatic
+
+	column valor_fob_brl
+		dataType: double
+		formatString: #,0
+		lineageTag: 2109ecdf-a4fd-4db0-9847-bb64e967cbe5
+		summarizeBy: sum
+		sourceColumn: valor_fob_brl
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fato_exportacao_aco = m
+		mode: import
+		source =
+				let
+				    Fonte = Parquet.Document(File.Contents(PastaDados & "fato_exportacao_aco.parquet")),
+				    Tipos = Table.TransformColumnTypes(Fonte, {
+				        {"mes_referencia", type date},
+				        {"pais", type text},
+				        {"sh4_codigo", type text},
+				        {"sh4_descricao", type text},
+				        {"valor_fob_usd", type number},
+				        {"peso_t", type number},
+				        {"preco_medio_usd_t", type number},
+				        {"dolar_medio", type number},
+				        {"valor_fob_brl", type number}
+				    })
+				in
+				    Tipos
+
+	annotation PBI_ResultType = Table
+

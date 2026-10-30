@@ -1,0 +1,54 @@
+table 'Parâmetro - Tradução Meses'
+	lineageTag: 434685db-b564-4a8f-9ad0-7fb60c3d8aa2
+
+	column Descrição
+		lineageTag: 81dcae1f-4b50-4e31-955c-83fd827bc64d
+		summarizeBy: none
+		sourceColumn: [Value1]
+		sortByColumn: Ordem
+
+		relatedColumnDetails
+			groupByColumn: Tradução
+
+		annotation SummarizationSetBy = Automatic
+
+	column Tradução
+		lineageTag: 59aff763-4f7d-41ad-9cd8-285fd667427f
+		summarizeBy: none
+		sourceColumn: [Value2]
+		sortByColumn: Ordem
+
+		extendedProperty ParameterMetadata =
+				{
+				  "version": 3,
+				  "kind": 2
+				}
+
+		annotation SummarizationSetBy = Automatic
+
+	column Ordem
+		isHidden
+		formatString: 0
+		lineageTag: 4d5d0459-8e8b-4af2-ae72-061116b45466
+		summarizeBy: none
+		sourceColumn: [Value3]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Idioma
+		isHidden
+		lineageTag: 144139bd-4873-4cee-b414-8d4f562fc17d
+		summarizeBy: none
+		sourceColumn: [Value4]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Parâmetro - Tradução Meses' = calculated
+		mode: import
+		source =
+				{
+				    ("Mês", NAMEOF(dim_calendario[nome_mes]), 0, "pt"),
+				    ("Month", NAMEOF(dim_calendario[nome_mes_en]), 0, "en"),
+				    ("Mes", NAMEOF(dim_calendario[nome_mes_es]), 0, "es")
+				}
+

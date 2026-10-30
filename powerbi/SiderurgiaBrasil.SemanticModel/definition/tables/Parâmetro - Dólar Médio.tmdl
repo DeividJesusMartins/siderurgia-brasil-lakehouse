@@ -1,0 +1,54 @@
+table 'Parâmetro - Dólar Médio'
+	lineageTag: fffeae4a-a3b5-42f1-9ae9-316850066313
+
+	column Descrição
+		lineageTag: e1b20948-02b3-44cb-aa9c-2dbd826818ab
+		summarizeBy: none
+		sourceColumn: [Value1]
+		sortByColumn: Ordem
+
+		relatedColumnDetails
+			groupByColumn: Tradução
+
+		annotation SummarizationSetBy = Automatic
+
+	column Tradução
+		lineageTag: 091fc6a2-c23c-4c78-9cd5-1649b76f968d
+		summarizeBy: none
+		sourceColumn: [Value2]
+		sortByColumn: Ordem
+
+		extendedProperty ParameterMetadata =
+				{
+				  "version": 3,
+				  "kind": 2
+				}
+
+		annotation SummarizationSetBy = Automatic
+
+	column Ordem
+		isHidden
+		formatString: 0
+		lineageTag: 56d914a9-8502-4471-b37c-71e03658afa6
+		summarizeBy: none
+		sourceColumn: [Value3]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Idioma
+		isHidden
+		lineageTag: 7c56184c-29b8-4e89-8789-4970eb24df69
+		summarizeBy: none
+		sourceColumn: [Value4]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Parâmetro - Dólar Médio' = calculated
+		mode: import
+		source =
+				{
+				    ("Dólar médio (R$/US$)", NAMEOF(_Medidas[Dólar Médio (R$/US$)]), 0, "pt"),
+				    ("Average dollar (R$/US$)", NAMEOF(_Medidas[Dólar Médio (R$/US$)]), 0, "en"),
+				    ("Dólar medio (R$/US$)", NAMEOF(_Medidas[Dólar Médio (R$/US$)]), 0, "es")
+				}
+

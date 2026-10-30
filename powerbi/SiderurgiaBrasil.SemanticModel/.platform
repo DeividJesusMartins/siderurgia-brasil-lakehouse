@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "SiderurgiaBrasil"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "c63151e2-65a1-4daa-8b8f-9a9929690470"
+  }
+}

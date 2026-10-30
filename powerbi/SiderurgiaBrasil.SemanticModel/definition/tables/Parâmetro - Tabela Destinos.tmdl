@@ -1,0 +1,66 @@
+table 'Parâmetro - Tabela Destinos'
+	lineageTag: 1a3c73a5-1977-4080-bfbc-18985ed35889
+
+	column Descrição
+		lineageTag: 08984070-56be-4452-8bd9-ef805d4f0311
+		summarizeBy: none
+		sourceColumn: [Value1]
+		sortByColumn: Ordem
+
+		relatedColumnDetails
+			groupByColumn: Tradução
+
+		annotation SummarizationSetBy = Automatic
+
+	column Tradução
+		lineageTag: 4cd5ecf8-e26e-43d0-a952-e432deb39c1d
+		summarizeBy: none
+		sourceColumn: [Value2]
+		sortByColumn: Ordem
+
+		extendedProperty ParameterMetadata =
+				{
+				  "version": 3,
+				  "kind": 2
+				}
+
+		annotation SummarizationSetBy = Automatic
+
+	column Ordem
+		isHidden
+		formatString: 0
+		lineageTag: f102ef8d-a4ba-4f2d-92b3-ba8df521b6ad
+		summarizeBy: none
+		sourceColumn: [Value3]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Idioma
+		isHidden
+		lineageTag: 53f9cba7-41bf-41fa-b3e7-056172386b42
+		summarizeBy: none
+		sourceColumn: [Value4]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Parâmetro - Tabela Destinos' = calculated
+		mode: import
+		source =
+				{
+				    ("País", NAMEOF(fato_exportacao_aco[pais]), 0, "pt"),
+				    ("Volume (mil t)", NAMEOF(_Medidas[Exportação (mil t)]), 1, "pt"),
+				    ("FOB (US$ mi)", NAMEOF(_Medidas[Exportação FOB (US$ mi)]), 2, "pt"),
+				    ("Preço (US$/t)", NAMEOF(_Medidas[Preço Médio (US$/t)]), 3, "pt"),
+				    ("Participação", NAMEOF(_Medidas[Participação no Volume %]), 4, "pt"),
+				    ("Country", NAMEOF(fato_exportacao_aco[pais]), 0, "en"),
+				    ("Volume (k t)", NAMEOF(_Medidas[Exportação (mil t)]), 1, "en"),
+				    ("FOB (US$ M)", NAMEOF(_Medidas[Exportação FOB (US$ mi)]), 2, "en"),
+				    ("Price (US$/t)", NAMEOF(_Medidas[Preço Médio (US$/t)]), 3, "en"),
+				    ("Share", NAMEOF(_Medidas[Participação no Volume %]), 4, "en"),
+				    ("País", NAMEOF(fato_exportacao_aco[pais]), 0, "es"),
+				    ("Volumen (mil t)", NAMEOF(_Medidas[Exportação (mil t)]), 1, "es"),
+				    ("FOB (US$ mill.)", NAMEOF(_Medidas[Exportação FOB (US$ mi)]), 2, "es"),
+				    ("Precio (US$/t)", NAMEOF(_Medidas[Preço Médio (US$/t)]), 3, "es"),
+				    ("Participación", NAMEOF(_Medidas[Participação no Volume %]), 4, "es")
+				}
+

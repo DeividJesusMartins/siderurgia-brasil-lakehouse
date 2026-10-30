@@ -1,0 +1,54 @@
+table 'Parâmetro - Volume Exportado'
+	lineageTag: eb643d47-437a-48ce-a21b-a7a71d4dee4b
+
+	column Descrição
+		lineageTag: 56c03d05-a6d8-4bf2-9a2f-d85d14596136
+		summarizeBy: none
+		sourceColumn: [Value1]
+		sortByColumn: Ordem
+
+		relatedColumnDetails
+			groupByColumn: Tradução
+
+		annotation SummarizationSetBy = Automatic
+
+	column Tradução
+		lineageTag: dd40b827-22d5-4150-8c69-6ccb2566f0fc
+		summarizeBy: none
+		sourceColumn: [Value2]
+		sortByColumn: Ordem
+
+		extendedProperty ParameterMetadata =
+				{
+				  "version": 3,
+				  "kind": 2
+				}
+
+		annotation SummarizationSetBy = Automatic
+
+	column Ordem
+		isHidden
+		formatString: 0
+		lineageTag: 64ef33e3-5f66-44d4-86a2-c864f2f2421a
+		summarizeBy: none
+		sourceColumn: [Value3]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Idioma
+		isHidden
+		lineageTag: 91254b24-2793-43fc-883c-64d51f111f7e
+		summarizeBy: none
+		sourceColumn: [Value4]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Parâmetro - Volume Exportado' = calculated
+		mode: import
+		source =
+				{
+				    ("Exportação (mil t)", NAMEOF(_Medidas[Exportação (mil t)]), 0, "pt"),
+				    ("Exports (k t)", NAMEOF(_Medidas[Exportação (mil t)]), 0, "en"),
+				    ("Exportación (mil t)", NAMEOF(_Medidas[Exportação (mil t)]), 0, "es")
+				}
+

@@ -1,0 +1,1019 @@
+table _Medidas
+	lineageTag: f7363723-152d-47ba-8719-08ff284e0e45
+
+	measure 'Índice Metalurgia' = AVERAGE(painel_siderurgia_mensal[indice_metalurgia])
+		formatString: #,0.0
+		displayFolder: 1 Produção
+		lineageTag: 49e169da-b39b-41e3-b93a-869cdc592145
+
+	measure 'Índice Metalurgia (dessaz.)' = CALCULATE(AVERAGE(fato_producao_industrial[indice_sa]), KEEPFILTERS(FILTER(ALL(dim_atividade[atividade_nome]), CONTAINSSTRING(dim_atividade[atividade_nome], "Metalurgia"))))
+		formatString: #,0.0
+		displayFolder: 1 Produção
+		lineageTag: cfbbcff9-3bfd-4ac5-befb-8fb3d5b125ee
+
+	measure 'Índice Transformação (dessaz.)' = CALCULATE(AVERAGE(fato_producao_industrial[indice_sa]), KEEPFILTERS(FILTER(ALL(dim_atividade[atividade_nome]), CONTAINSSTRING(dim_atividade[atividade_nome], "transformação"))))
+		formatString: #,0.0
+		displayFolder: 1 Produção
+		lineageTag: a9c6fbe7-9619-453a-99d6-408eb3e1b71d
+
+	measure 'Índice Indústria Geral (dessaz.)' = CALCULATE(AVERAGE(fato_producao_industrial[indice_sa]), KEEPFILTERS(FILTER(ALL(dim_atividade[atividade_nome]), CONTAINSSTRING(dim_atividade[atividade_nome], "Indústria geral"))))
+		formatString: #,0.0
+		displayFolder: 1 Produção
+		lineageTag: fbc2961d-0b9e-455d-8941-fa1d8b7d2a60
+
+	measure 'Metalurgia Média Móvel 3m' = CALCULATE(AVERAGE(fato_producao_industrial[media_movel_3m_sa]), KEEPFILTERS(FILTER(ALL(dim_atividade[atividade_nome]), CONTAINSSTRING(dim_atividade[atividade_nome], "Metalurgia"))))
+		formatString: #,0.0
+		displayFolder: 1 Produção
+		lineageTag: 98c35f85-34a6-4d32-b6fe-50542a63b98e
+
+	measure 'Último Mês Produção' = CALCULATE(MAX(painel_siderurgia_mensal[mes_referencia]), NOT ISBLANK(painel_siderurgia_mensal[indice_metalurgia]))
+		formatString: mmm/yyyy
+		displayFolder: 1 Produção
+		lineageTag: 7df2a82e-c16c-4c63-8383-da7caf448ee6
+
+	measure 'Metalurgia (último mês)' =
+			VAR _m = [Último Mês Produção]
+			RETURN
+			    CALCULATE([Índice Metalurgia (dessaz.)], REMOVEFILTERS(dim_calendario), fato_producao_industrial[mes_referencia] = _m)
+		formatString: #,0.0
+		displayFolder: 1 Produção
+		lineageTag: c8d6d5c6-491d-47f6-8911-8634d7e084aa
+
+	measure 'Transformação (último mês)' =
+			VAR _m = [Último Mês Produção]
+			RETURN
+			    CALCULATE([Índice Transformação (dessaz.)], REMOVEFILTERS(dim_calendario), fato_producao_industrial[mes_referencia] = _m)
+		formatString: #,0.0
+		displayFolder: 1 Produção
+		lineageTag: 25e64624-508c-4ff9-9291-1bd54d71eec5
+
+	measure 'Metalurgia Var. 12m %' =
+			VAR _m = [Último Mês Produção]
+			RETURN
+			    DIVIDE(
+			        CALCULATE(AVERAGE(painel_siderurgia_mensal[metalurgia_var_12m_pct]), painel_siderurgia_mensal[mes_referencia] = _m),
+			        100
+			    )
+		formatString: 0.0%
+		displayFolder: 1 Produção
+		lineageTag: 17a805dc-e5d5-4680-8b3a-76d36d006713
+
+	measure 'Transformação Var. 12m %' =
+			VAR _m = [Último Mês Produção]
+			RETURN
+			    DIVIDE(
+			        CALCULATE(AVERAGE(fato_producao_industrial[var_12m_pct]), REMOVEFILTERS(dim_calendario), fato_producao_industrial[mes_referencia] = _m, KEEPFILTERS(FILTER(ALL(dim_atividade[atividade_nome]), CONTAINSSTRING(dim_atividade[atividade_nome], "transformação")))),
+			        100
+			    )
+		formatString: 0.0%
+		displayFolder: 1 Produção
+		lineageTag: e4cfc1e8-38d4-4795-ba71-52ff2e25e977
+
+	measure 'Metalurgia Var. 12m (texto)' =
+			VAR _v = [Metalurgia Var. 12m %]
+			RETURN
+			    IF(
+			        ISBLANK(_v),
+			        [Tradução - Sem Base],
+			        IF(_v >= 0, "▲ ", "▼ ") & FORMAT(ABS(_v), "0.0%", [Tradução - Cultura]) & " " & [Tradução - Sufixo Mesmo Mês]
+			    )
+		displayFolder: 1 Produção
+		lineageTag: c874e082-b9d0-48df-ae08-84198d054148
+
+	measure 'Transformação Var. 12m (texto)' =
+			VAR _v = [Transformação Var. 12m %]
+			RETURN
+			    IF(
+			        ISBLANK(_v),
+			        [Tradução - Sem Base],
+			        IF(_v >= 0, "▲ ", "▼ ") & FORMAT(ABS(_v), "0.0%", [Tradução - Cultura]) & " " & [Tradução - Sufixo Mesmo Mês]
+			    )
+		displayFolder: 1 Produção
+		lineageTag: 5ffe14a4-a5d4-4ad4-b6e6-9f7cd6daa949
+
+	measure 'Referência Produção (texto)' = [Tradução - Texto Índice Base] & " " & FORMAT([Último Mês Produção], "mmm/yyyy", [Tradução - Cultura])
+		displayFolder: 1 Produção
+		lineageTag: 2631c3c9-ef01-450a-a5ca-20cf621fc500
+
+	measure 'Atividade Var. 12m % (último mês)' =
+			VAR _m = [Último Mês Produção]
+			RETURN
+			    DIVIDE(
+			        CALCULATE(AVERAGE(fato_producao_industrial[var_12m_pct]), REMOVEFILTERS(dim_calendario), fato_producao_industrial[mes_referencia] = _m),
+			        100
+			    )
+		formatString: 0.0%
+		displayFolder: 1 Produção
+		lineageTag: dba7498f-e13a-456e-9042-d42b75b1d460
+
+	measure 'Atividade Índice (último mês)' =
+			VAR _m = [Último Mês Produção]
+			RETURN
+			    CALCULATE(AVERAGE(fato_producao_industrial[indice_sa]), REMOVEFILTERS(dim_calendario), fato_producao_industrial[mes_referencia] = _m)
+		formatString: #,0.0
+		displayFolder: 1 Produção
+		lineageTag: 11bd996e-b70e-4772-8c27-485d2eb30840
+
+	measure 'Exportação (t)' = SUM(fato_exportacao_aco[peso_t])
+		formatString: #,0
+		displayFolder: 2 Exportações
+		lineageTag: fdbb5a6a-0ad6-4eaf-8774-aba3ed1b12f6
+
+	measure 'Exportação (mil t)' = DIVIDE([Exportação (t)], 1000)
+		formatString: #,0.0
+		displayFolder: 2 Exportações
+		lineageTag: f2210627-e17a-4ed5-a63b-12e6b2c2d4ae
+
+	measure 'Exportação FOB (US$ mi)' = DIVIDE(SUM(fato_exportacao_aco[valor_fob_usd]), 1000000)
+		formatString: #,0.0
+		displayFolder: 2 Exportações
+		lineageTag: 5a45d800-d7da-43bb-94b6-acf39ca553b2
+
+	measure 'Exportação FOB (R$ mi)' = DIVIDE(SUM(fato_exportacao_aco[valor_fob_brl]), 1000000)
+		formatString: #,0.0
+		displayFolder: 2 Exportações
+		lineageTag: efca7b13-cf92-4d31-8815-4e37bbb26605
+
+	measure 'Preço Médio (US$/t)' = DIVIDE(SUM(fato_exportacao_aco[valor_fob_usd]), [Exportação (t)])
+		formatString: #,0
+		displayFolder: 2 Exportações
+		lineageTag: 44f1cfed-1a70-4942-ab6d-5d53d72cf39e
+
+	measure 'Países de Destino' = DISTINCTCOUNT(fato_exportacao_aco[pais])
+		formatString: #,0
+		displayFolder: 2 Exportações
+		lineageTag: b74867d1-bc7a-421e-9589-5a2e9da1daab
+
+	measure 'Dólar Médio (R$/US$)' = AVERAGE(painel_siderurgia_mensal[dolar_medio])
+		formatString: 0.00
+		displayFolder: 2 Exportações
+		lineageTag: 05c6e7ca-33c7-487d-b831-77a452de2980
+
+	measure 'Último Mês Exportação' = MAX(fato_exportacao_aco[mes_referencia])
+		formatString: mmm/yyyy
+		displayFolder: 2 Exportações
+		lineageTag: a83dfeb2-afc1-430b-8233-0609565817bc
+
+	measure 'Exportação 12m (mil t)' =
+			VAR _ultimo = [Último Mês Exportação]
+			VAR _fim = EDATE(_ultimo, -0)
+			VAR _ini = EDATE(_ultimo, -11)
+			RETURN
+			    CALCULATE(
+			        [Exportação (mil t)],
+			        REMOVEFILTERS(dim_calendario),
+			        fato_exportacao_aco[mes_referencia] >= _ini,
+			        fato_exportacao_aco[mes_referencia] <= _fim
+			    )
+		formatString: #,0
+		displayFolder: 2 Exportações
+		lineageTag: 5576f595-c9a1-4947-93fb-8e2f72f5e254
+
+	measure 'Exportação 12m ant. (mil t)' =
+			VAR _ultimo = [Último Mês Exportação]
+			VAR _fim = EDATE(_ultimo, -12)
+			VAR _ini = EDATE(_ultimo, -23)
+			RETURN
+			    CALCULATE(
+			        [Exportação (mil t)],
+			        REMOVEFILTERS(dim_calendario),
+			        fato_exportacao_aco[mes_referencia] >= _ini,
+			        fato_exportacao_aco[mes_referencia] <= _fim
+			    )
+		formatString: #,0
+		displayFolder: 2 Exportações
+		lineageTag: 1ee3be27-e6e4-4415-af0a-c99224953657
+
+	measure 'Exportação Var. 12m %' =
+			VAR _atual = [Exportação 12m (mil t)]
+			VAR _anterior = [Exportação 12m ant. (mil t)]
+			RETURN
+			    IF(NOT ISBLANK(_anterior) && _anterior <> 0, DIVIDE(_atual, _anterior) - 1)
+		formatString: 0.0%
+		displayFolder: 2 Exportações
+		lineageTag: 28282164-e21e-4583-9ef5-548235a13d75
+
+	measure 'Exportação Var. 12m (texto)' =
+			VAR _v = [Exportação Var. 12m %]
+			RETURN
+			    IF(
+			        ISBLANK(_v),
+			        [Tradução - Sem Base],
+			        IF(_v >= 0, "▲ ", "▼ ") & FORMAT(ABS(_v), "0.0%", [Tradução - Cultura]) & " " & [Tradução - Sufixo 12 Meses]
+			    )
+		displayFolder: 2 Exportações
+		lineageTag: 17602096-9af9-462e-a982-0bf6a12311aa
+
+	measure 'FOB 12m (US$ mi)' =
+			VAR _ultimo = [Último Mês Exportação]
+			VAR _fim = EDATE(_ultimo, -0)
+			VAR _ini = EDATE(_ultimo, -11)
+			RETURN
+			    CALCULATE(
+			        [Exportação FOB (US$ mi)],
+			        REMOVEFILTERS(dim_calendario),
+			        fato_exportacao_aco[mes_referencia] >= _ini,
+			        fato_exportacao_aco[mes_referencia] <= _fim
+			    )
+		formatString: #,0
+		displayFolder: 2 Exportações
+		lineageTag: 81224c32-d32d-4459-81dc-a48211726e0a
+
+	measure 'FOB 12m ant. (US$ mi)' =
+			VAR _ultimo = [Último Mês Exportação]
+			VAR _fim = EDATE(_ultimo, -12)
+			VAR _ini = EDATE(_ultimo, -23)
+			RETURN
+			    CALCULATE(
+			        [Exportação FOB (US$ mi)],
+			        REMOVEFILTERS(dim_calendario),
+			        fato_exportacao_aco[mes_referencia] >= _ini,
+			        fato_exportacao_aco[mes_referencia] <= _fim
+			    )
+		formatString: #,0
+		displayFolder: 2 Exportações
+		lineageTag: cbba6913-fb6d-4027-8ab1-56ef032f1e04
+
+	measure 'FOB Var. 12m %' =
+			VAR _atual = [FOB 12m (US$ mi)]
+			VAR _anterior = [FOB 12m ant. (US$ mi)]
+			RETURN
+			    IF(NOT ISBLANK(_anterior) && _anterior <> 0, DIVIDE(_atual, _anterior) - 1)
+		formatString: 0.0%
+		displayFolder: 2 Exportações
+		lineageTag: 654eb7a9-4c48-416c-8c5a-51d4308f5f90
+
+	measure 'FOB Var. 12m (texto)' =
+			VAR _v = [FOB Var. 12m %]
+			RETURN
+			    IF(
+			        ISBLANK(_v),
+			        [Tradução - Sem Base],
+			        IF(_v >= 0, "▲ ", "▼ ") & FORMAT(ABS(_v), "0.0%", [Tradução - Cultura]) & " " & [Tradução - Sufixo 12 Meses]
+			    )
+		displayFolder: 2 Exportações
+		lineageTag: 589098a3-f192-4790-a532-022b533c8160
+
+	measure 'Preço Médio 12m (US$/t)' =
+			VAR _ultimo = [Último Mês Exportação]
+			VAR _fim = EDATE(_ultimo, -0)
+			VAR _ini = EDATE(_ultimo, -11)
+			RETURN
+			    CALCULATE(
+			        [Preço Médio (US$/t)],
+			        REMOVEFILTERS(dim_calendario),
+			        fato_exportacao_aco[mes_referencia] >= _ini,
+			        fato_exportacao_aco[mes_referencia] <= _fim
+			    )
+		formatString: #,0
+		displayFolder: 2 Exportações
+		lineageTag: c33dbe77-0b61-4100-875b-ec601d773e72
+
+	measure 'Preço Médio 12m ant. (US$/t)' =
+			VAR _ultimo = [Último Mês Exportação]
+			VAR _fim = EDATE(_ultimo, -12)
+			VAR _ini = EDATE(_ultimo, -23)
+			RETURN
+			    CALCULATE(
+			        [Preço Médio (US$/t)],
+			        REMOVEFILTERS(dim_calendario),
+			        fato_exportacao_aco[mes_referencia] >= _ini,
+			        fato_exportacao_aco[mes_referencia] <= _fim
+			    )
+		formatString: #,0
+		displayFolder: 2 Exportações
+		lineageTag: 3bdab519-1365-4a35-8a13-b8ef682057ed
+
+	measure 'Preço Var. 12m %' =
+			VAR _atual = [Preço Médio 12m (US$/t)]
+			VAR _anterior = [Preço Médio 12m ant. (US$/t)]
+			RETURN
+			    IF(NOT ISBLANK(_anterior) && _anterior <> 0, DIVIDE(_atual, _anterior) - 1)
+		formatString: 0.0%
+		displayFolder: 2 Exportações
+		lineageTag: 45164c04-5df3-4ddb-bc15-83353253b775
+
+	measure 'Preço Var. 12m (texto)' =
+			VAR _v = [Preço Var. 12m %]
+			RETURN
+			    IF(
+			        ISBLANK(_v),
+			        [Tradução - Sem Base],
+			        IF(_v >= 0, "▲ ", "▼ ") & FORMAT(ABS(_v), "0.0%", [Tradução - Cultura]) & " " & [Tradução - Sufixo 12 Meses]
+			    )
+		displayFolder: 2 Exportações
+		lineageTag: 9b006ea7-9e3e-4c06-b47b-d76e1fb9b9c8
+
+	measure 'Países de Destino 12m' =
+			VAR _ultimo = [Último Mês Exportação]
+			VAR _fim = EDATE(_ultimo, -0)
+			VAR _ini = EDATE(_ultimo, -11)
+			RETURN
+			    CALCULATE(
+			        [Países de Destino],
+			        REMOVEFILTERS(dim_calendario),
+			        fato_exportacao_aco[mes_referencia] >= _ini,
+			        fato_exportacao_aco[mes_referencia] <= _fim
+			    )
+		formatString: #,0
+		displayFolder: 2 Exportações
+		lineageTag: 3d51c631-f367-410e-917a-c49571ed9d56
+
+	measure 'Concentração Top 5 Destinos 12m %' =
+			VAR _ultimo = [Último Mês Exportação]
+			VAR _ini = EDATE(_ultimo, -11)
+			VAR _porPais =
+			    CALCULATETABLE(
+			        ADDCOLUMNS(VALUES(fato_exportacao_aco[pais]), "@volume", [Exportação (t)]),
+			        REMOVEFILTERS(dim_calendario),
+			        fato_exportacao_aco[mes_referencia] >= _ini,
+			        fato_exportacao_aco[mes_referencia] <= _ultimo
+			    )
+			VAR _top5 = SUMX(TOPN(5, _porPais, [@volume], DESC), [@volume])
+			RETURN
+			    DIVIDE(_top5, SUMX(_porPais, [@volume]))
+		formatString: 0.0%
+		displayFolder: 2 Exportações
+		lineageTag: e2207d0b-cb29-4efd-8650-936935854580
+
+	measure 'Concentração Top 5 (texto)' = [Tradução - Texto Top 5 Destinos] & " = " & FORMAT([Concentração Top 5 Destinos 12m %], "0%", [Tradução - Cultura]) & " " & [Tradução - Texto Do Volume]
+		displayFolder: 2 Exportações
+		lineageTag: 2a3c95df-a719-4b92-ba6f-d338f3e85d68
+
+	measure 'Referência Exportação (texto)' = [Tradução - Texto 12 Meses Até] & " " & FORMAT([Último Mês Exportação], "mmm/yyyy", [Tradução - Cultura])
+		displayFolder: 2 Exportações
+		lineageTag: 49f6ea61-736d-44fc-a678-023b7483684e
+
+	measure 'Participação no Volume %' = DIVIDE([Exportação (t)], CALCULATE([Exportação (t)], ALLSELECTED(fato_exportacao_aco[pais])))
+		formatString: 0.0%
+		displayFolder: 2 Exportações
+		lineageTag: a3d9c63c-3cfe-413b-ba68-67ae8ccaabe4
+
+	measure 'Exportação Top 10 Destinos (mil t)' =
+			IF(
+			    ISINSCOPE(fato_exportacao_aco[pais])
+			        && RANKX(ALLSELECTED(fato_exportacao_aco[pais]), [Exportação (mil t)], , DESC) <= 10,
+			    [Exportação (mil t)]
+			)
+		formatString: #,0
+		displayFolder: 2 Exportações
+		lineageTag: 220935f3-970d-46d1-9241-e4365451a1ba
+
+	measure 'Exportação Top 10 Produtos (mil t)' =
+			IF(
+			    ISINSCOPE(fato_exportacao_aco[sh4_descricao])
+			        && RANKX(ALLSELECTED(fato_exportacao_aco[sh4_descricao]), [Exportação (mil t)], , DESC) <= 10,
+			    [Exportação (mil t)]
+			)
+		formatString: #,0
+		displayFolder: 2 Exportações
+		lineageTag: 4fba7cf6-97f1-4aec-a990-ab2dcfa9b150
+
+	measure 'Emissões (Mt CO2e)' = DIVIDE(SUM(fato_emissoes_usina[emissoes_t_co2e]), 1000000)
+		formatString: #,0.00
+		displayFolder: 3 Emissões
+		lineageTag: 984a673f-9732-46cb-ba1e-7526d17d80e3
+
+	measure 'Ano de Referência Emissões' = CALCULATE(MAX(fato_emissoes_usina[ano]), ALLSELECTED(fato_emissoes_usina))
+		formatString: 0
+		displayFolder: 3 Emissões
+		lineageTag: a27f37b5-5fe9-4b61-bdfc-b39b349b1113
+
+	measure 'Emissões no Ano (Mt CO2e)' =
+			VAR _a = [Ano de Referência Emissões]
+			RETURN
+			    CALCULATE([Emissões (Mt CO2e)], fato_emissoes_usina[ano] = _a)
+		formatString: #,0.00
+		displayFolder: 3 Emissões
+		lineageTag: 88577817-dd04-4f80-8c3c-5bc7b14bb768
+
+	measure 'Emissões Ano Anterior (Mt CO2e)' =
+			VAR _a = [Ano de Referência Emissões]
+			RETURN
+			    CALCULATE([Emissões (Mt CO2e)], fato_emissoes_usina[ano] = _a - 1)
+		formatString: #,0.00
+		displayFolder: 3 Emissões
+		lineageTag: e95fe08c-2080-4580-b754-23279070a67e
+
+	measure 'Emissões Var. a/a %' =
+			VAR _atual = [Emissões no Ano (Mt CO2e)]
+			VAR _anterior = [Emissões Ano Anterior (Mt CO2e)]
+			RETURN
+			    IF(NOT ISBLANK(_anterior) && _anterior <> 0, DIVIDE(_atual, _anterior) - 1)
+		formatString: 0.0%
+		displayFolder: 3 Emissões
+		lineageTag: 8a191a53-bbf3-4681-bd27-6852d59105f5
+
+	measure 'Emissões Var. a/a (texto)' =
+			VAR _v = [Emissões Var. a/a %]
+			RETURN
+			    IF(
+			        ISBLANK(_v),
+			        [Tradução - Sem Base],
+			        IF(_v >= 0, "▲ ", "▼ ") & FORMAT(ABS(_v), "0.0%", [Tradução - Cultura]) & " " & [Tradução - Sufixo Ano Anterior]
+			    )
+		displayFolder: 3 Emissões
+		lineageTag: f753ebdc-42d6-400f-ba49-581375039c5f
+
+	measure 'Usinas Monitoradas' =
+			VAR _a = [Ano de Referência Emissões]
+			RETURN
+			    CALCULATE(DISTINCTCOUNT(fato_emissoes_usina[usina_id]), fato_emissoes_usina[ano] = _a)
+		formatString: #,0
+		displayFolder: 3 Emissões
+		lineageTag: c239faba-bd2c-4cd7-bd66-ca2fa16a5016
+
+	measure 'Ranking no Ano' =
+			VAR _a = [Ano de Referência Emissões]
+			RETURN
+			    CALCULATE(MIN(fato_emissoes_usina[ranking_no_ano]), fato_emissoes_usina[ano] = _a)
+		formatString: 0
+		displayFolder: 3 Emissões
+		lineageTag: b932c52f-7667-4b54-b91b-edde83c671d9
+
+	measure 'Participação no Setor %' =
+			DIVIDE(
+			    [Emissões no Ano (Mt CO2e)],
+			    CALCULATE([Emissões no Ano (Mt CO2e)], ALLSELECTED(fato_emissoes_usina[usina_nome]))
+			)
+		formatString: 0.0%
+		displayFolder: 3 Emissões
+		lineageTag: 7dd57641-1b5a-44ec-8683-05abcb72a602
+
+	measure 'Concentração Top 3 Usinas %' =
+			VAR _a = [Ano de Referência Emissões]
+			RETURN
+			    DIVIDE(
+			        CALCULATE(SUM(fato_emissoes_usina[participacao_pct]), fato_emissoes_usina[ano] = _a, fato_emissoes_usina[ranking_no_ano] <= 3),
+			        100
+			    )
+		formatString: 0.0%
+		displayFolder: 3 Emissões
+		lineageTag: 8c4b1381-859f-447c-a61d-878a3a065840
+
+	measure 'Maior Emissora (texto)' =
+			VAR _a = [Ano de Referência Emissões]
+			RETURN
+			    [Tradução - Texto Maior Emissora] & ": " & CALCULATE(MAX(painel_emissoes_anual[maior_emissora]), painel_emissoes_anual[ano] = _a)
+		displayFolder: 3 Emissões
+		lineageTag: 2742ce5b-f6a7-4855-b9cc-6dd0eefc4e5a
+
+	measure 'Referência Emissões (texto)' = [Tradução - Texto Ano Referência] & ": " & [Ano de Referência Emissões]
+		displayFolder: 3 Emissões
+		lineageTag: 792b9ff1-8b58-4ad0-930e-9a86fcadd4a4
+
+	measure 'Emissões Top 5 Usinas (Mt CO2e)' = IF(ISINSCOPE(fato_emissoes_usina[usina_nome]) && [Ranking no Ano] <= 5, [Emissões no Ano (Mt CO2e)])
+		formatString: #,0.00
+		displayFolder: 3 Emissões
+		lineageTag: b0406056-9cea-4ca2-8cb0-894e6851955d
+
+	measure 'Emissões Totais do Setor (Mt CO2e)' = DIVIDE(SUM(painel_emissoes_anual[emissoes_total_t_co2e]), 1000000)
+		formatString: #,0.00
+		displayFolder: 3 Emissões
+		lineageTag: 6fa5425b-6b08-48af-985b-54986a5197b8
+
+	measure 'Indústria Geral (último mês)' =
+			VAR _m = [Último Mês Produção]
+			RETURN
+			    CALCULATE([Índice Indústria Geral (dessaz.)], REMOVEFILTERS(dim_calendario), fato_producao_industrial[mes_referencia] = _m)
+		formatString: #,0.0
+		displayFolder: 1 Produção
+		lineageTag: bdabfcf5-3106-4846-91cb-ea1ddfed2dbd
+
+	measure 'Indústria Geral Var. 12m %' =
+			VAR _m = [Último Mês Produção]
+			RETURN
+			    DIVIDE(
+			        CALCULATE(AVERAGE(fato_producao_industrial[var_12m_pct]), REMOVEFILTERS(dim_calendario), fato_producao_industrial[mes_referencia] = _m, KEEPFILTERS(FILTER(ALL(dim_atividade[atividade_nome]), CONTAINSSTRING(dim_atividade[atividade_nome], "Indústria geral")))),
+			        100
+			    )
+		formatString: 0.0%
+		displayFolder: 1 Produção
+		lineageTag: 4df33572-fefe-4f49-a459-ee4042922c31
+
+	measure 'Indústria Geral Var. 12m (texto)' =
+			VAR _v = [Indústria Geral Var. 12m %]
+			RETURN
+			    IF(
+			        ISBLANK(_v),
+			        [Tradução - Sem Base],
+			        IF(_v >= 0, "▲ ", "▼ ") & FORMAT(ABS(_v), "0.0%", [Tradução - Cultura]) & " " & [Tradução - Sufixo Mesmo Mês]
+			    )
+		displayFolder: 1 Produção
+		lineageTag: bf556abb-8a2e-4f17-995b-32793b0deada
+
+	measure 'Atividades em Alta' =
+			VAR _porAtividade =
+			    ADDCOLUMNS(VALUES(dim_atividade[atividade_nome]), "@var", [Atividade Var. 12m % (último mês)])
+			RETURN
+			    COUNTROWS(FILTER(_porAtividade, [@var] > 0)) + 0
+		formatString: #,0
+		displayFolder: 1 Produção
+		lineageTag: 262fcdf5-85da-49e6-b8ac-429bffbdb650
+
+	measure 'Atividades em Alta (texto)' =
+			VAR _porAtividade =
+			    ADDCOLUMNS(VALUES(dim_atividade[atividade_nome]), "@var", [Atividade Var. 12m % (último mês)])
+			RETURN
+			    [Tradução - Texto De] & " " & COUNTROWS(FILTER(_porAtividade, NOT ISBLANK([@var]))) & " " & [Tradução - Texto Atividades Cresceram]
+		displayFolder: 1 Produção
+		lineageTag: a0f868cc-015c-4d50-aabf-66a76816f8d7
+
+	measure 'Participação Maior Emissora %' =
+			VAR _a = [Ano de Referência Emissões]
+			RETURN
+			    DIVIDE(CALCULATE(MAX(fato_emissoes_usina[participacao_pct]), fato_emissoes_usina[ano] = _a), 100)
+		formatString: 0.0%
+		displayFolder: 3 Emissões
+		lineageTag: 069da5db-513e-467b-a69c-273196aea4e1
+
+	measure 'Maior Emissora (nome)' =
+			VAR _a = [Ano de Referência Emissões]
+			RETURN
+			    CALCULATE(MAX(painel_emissoes_anual[maior_emissora]), painel_emissoes_anual[ano] = _a)
+		displayFolder: 3 Emissões
+		lineageTag: 4ef0c6a2-7c03-491c-97bf-f266f9a7adb3
+
+	measure 'Tradução - Idioma' = SELECTEDVALUE('Tradução Idiomas'[IdiomaID], "pt")
+		displayFolder: 9 Traduções
+		lineageTag: a911d72e-3d95-415a-9c6e-b11fe2cde9f4
+
+	measure 'Tradução - Cultura' = SELECTEDVALUE('Tradução Idiomas'[DefaultCulture], "pt-BR")
+		displayFolder: 9 Traduções
+		lineageTag: b29cded0-7d41-4434-b40d-8f4657a8044d
+
+	measure 'Tradução - Nav Visão Geral' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "Nav Visão Geral", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: 808a3ec5-a3ac-42cf-8a90-bbddf162e5fe
+
+	measure 'Tradução - Nav Produção' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "Nav Produção", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: 30e0271b-8081-42d0-aa2a-e3e94823d5ad
+
+	measure 'Tradução - Nav Exportações' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "Nav Exportações", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: d48c23c0-8f5b-4f44-b906-dd104a01edad
+
+	measure 'Tradução - Nav Emissões' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "Nav Emissões", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: 8b2823fa-958c-4608-b237-47b07174affd
+
+	measure 'Tradução - Título Visão Geral' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "Título Visão Geral", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: 939b2852-78cf-4821-83fe-6e387b2fdc31
+
+	measure 'Tradução - Subtítulo Visão Geral' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "Subtítulo Visão Geral", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: b3dad136-43c0-41a2-8fc5-767c7f47331e
+
+	measure 'Tradução - Título Produção' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "Título Produção", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: ca6542ca-c375-454c-83c7-ad651f70ca58
+
+	measure 'Tradução - Subtítulo Produção' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "Subtítulo Produção", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: 64b820d8-cabc-4470-b394-3bdb5bb2dffb
+
+	measure 'Tradução - Título Exportações' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "Título Exportações", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: 996f4944-a773-4f01-8414-33251fa61e10
+
+	measure 'Tradução - Subtítulo Exportações' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "Subtítulo Exportações", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: c04dd929-d689-4c86-9043-ca022e2107d8
+
+	measure 'Tradução - Título Emissões' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "Título Emissões", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: 898b58aa-8af7-4b5b-bcd2-e0e9a1e36129
+
+	measure 'Tradução - Subtítulo Emissões' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "Subtítulo Emissões", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: fc55da8a-76c7-4764-bfd5-7a8b1de6fe93
+
+	measure 'Tradução - Filtro Ano' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "Filtro Ano", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: 3742f3a5-43e9-4994-a0d6-70d69b5d5809
+
+	measure 'Tradução - Filtro Mês' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "Filtro Mês", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: 10020907-5442-47c5-a976-a489590023b6
+
+	measure 'Tradução - Filtro País' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "Filtro País", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: 04df60f0-78a1-4af7-8c70-1269428833c2
+
+	measure 'Tradução - Filtro Usina' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "Filtro Usina", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: 723b2719-a938-4857-bfaa-a127fb142642
+
+	measure 'Tradução - Filtro Atividade' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "Filtro Atividade", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: b9c7e1ea-229a-43d5-bc66-0e3999840e9c
+
+	measure 'Tradução - Filtro Produto' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "Filtro Produto", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: 06fb4908-595a-4119-bfba-efb45df95af3
+
+	measure 'Tradução - KPI Metalurgia' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "KPI Metalurgia", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: c3bfdb76-4d7b-4c89-bbcc-814d4e354db5
+
+	measure 'Tradução - KPI Transformação' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "KPI Transformação", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: 55291eda-3cb6-43e7-97b8-88c1bd83678c
+
+	measure 'Tradução - KPI Indústria Geral' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "KPI Indústria Geral", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: 35996265-5ea0-4156-8bcc-faac77a8b511
+
+	measure 'Tradução - KPI Atividades em Alta' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "KPI Atividades em Alta", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: 8067d376-3944-4721-9372-abfe4d496e1b
+
+	measure 'Tradução - KPI Exportações 12m' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "KPI Exportações 12m", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: 8f0e7d51-118f-4e01-a172-c002b9b40152
+
+	measure 'Tradução - KPI Volume 12m' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "KPI Volume 12m", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: f444da3e-0325-451d-8b74-ebd939111b31
+
+	measure 'Tradução - KPI Preço 12m' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "KPI Preço 12m", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: e3c5c800-8c7b-42f5-a7e2-cc94f8400faf
+
+	measure 'Tradução - KPI Receita FOB' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "KPI Receita FOB", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: a5384647-8d59-4c2c-8f1d-ec17c69295ef
+
+	measure 'Tradução - KPI Países 12m' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "KPI Países 12m", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: c200b274-e376-4214-9484-e156f8f888d9
+
+	measure 'Tradução - KPI Emissões Setor' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "KPI Emissões Setor", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: 01fe50b5-bfc9-4367-b0b1-d94f0d770180
+
+	measure 'Tradução - KPI Usinas' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "KPI Usinas", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: c4bff5db-3181-481e-82b5-76687fda5adf
+
+	measure 'Tradução - KPI Top 3' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "KPI Top 3", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: 70b398ca-a2e0-4939-aac4-f26441302e1a
+
+	measure 'Tradução - KPI Maior Emissora' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "KPI Maior Emissora", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: 9384bd1a-3df2-4ff2-9c83-7f487cfc134d
+
+	measure 'Tradução - Gráfico Produção Física' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "Gráfico Produção Física", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: cd5a388a-a86c-45da-8f63-70011aab17bf
+
+	measure 'Tradução - Gráfico Exportações x Dólar' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "Gráfico Exportações x Dólar", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: 221c654f-3153-4dbd-9c05-017e63b0ae47
+
+	measure 'Tradução - Gráfico Top Destinos Período' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "Gráfico Top Destinos Período", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: 5f49de79-b9a4-401e-83e4-53722e6c7e18
+
+	measure 'Tradução - Gráfico Top Produtos' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "Gráfico Top Produtos", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: bc956fdf-cb63-4588-84c6-f69542c5e67b
+
+	measure 'Tradução - Gráfico Top Usinas' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "Gráfico Top Usinas", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: 70173a78-bb39-4a04-8cda-4e1132d57327
+
+	measure 'Tradução - Gráfico Comparação' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "Gráfico Comparação", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: f3d098dd-cfba-4cc0-bf67-6567325e2382
+
+	measure 'Tradução - Gráfico Ranking Atividades' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "Gráfico Ranking Atividades", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: f3c84b50-4db7-4f11-a91f-f565578d225a
+
+	measure 'Tradução - Gráfico Série Metalurgia' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "Gráfico Série Metalurgia", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: 19f54dbb-7fc8-4508-a8b6-304ee93fcf01
+
+	measure 'Tradução - Gráfico Tabela Atividades' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "Gráfico Tabela Atividades", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: 2434fe1f-b8c1-46bb-9677-b8b3924e334b
+
+	measure 'Tradução - Gráfico Top Destinos' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "Gráfico Top Destinos", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: 8cdee0b2-0fa3-4935-8bc1-a75508c13b2d
+
+	measure 'Tradução - Gráfico Preço Médio' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "Gráfico Preço Médio", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: 87268437-5dd8-4977-a2ed-3bb26b4b14ee
+
+	measure 'Tradução - Gráfico Top Produtos SH4' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "Gráfico Top Produtos SH4", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: 30ff9cf5-0ec7-4b72-bfab-665352db29fd
+
+	measure 'Tradução - Gráfico Tabela Destinos' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "Gráfico Tabela Destinos", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: 447256d8-4ef9-433c-87fd-e419c7221333
+
+	measure 'Tradução - Gráfico Volume x Dólar' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "Gráfico Volume x Dólar", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: bcc10eb1-9e55-438d-9e0d-1da807351cad
+
+	measure 'Tradução - Gráfico Emissões por Ano' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "Gráfico Emissões por Ano", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: 6cde1c11-165d-4753-b016-be31d230238b
+
+	measure 'Tradução - Gráfico Ranking Usinas' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "Gráfico Ranking Usinas", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: b5240930-9f41-4449-bf4c-8343eeb5f9b0
+
+	measure 'Tradução - Gráfico Emissões por Usina' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "Gráfico Emissões por Usina", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: 057380ed-ae3c-4a85-bb50-2d4542fbc908
+
+	measure 'Tradução - Nota Emissões' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "Nota Emissões", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: 0c233300-2ab2-4c06-831e-fe572dd45a0f
+
+	measure 'Tradução - Sem Base' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "Sem Base", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: 0fbf0b70-6be0-4d41-94b6-40f6e4bfd96f
+
+	measure 'Tradução - Sufixo Mesmo Mês' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "Sufixo Mesmo Mês", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: aa981210-b241-456e-ac37-a86d31933f26
+
+	measure 'Tradução - Sufixo 12 Meses' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "Sufixo 12 Meses", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: 822dd285-5a61-4ec5-9fd2-ab53747463ca
+
+	measure 'Tradução - Sufixo Ano Anterior' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "Sufixo Ano Anterior", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: a3374648-7893-4d2d-b4cd-98b3a9bf8ccc
+
+	measure 'Tradução - Texto Índice Base' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "Texto Índice Base", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: 91253dc5-0b51-4bf9-8e87-56ef6e7cf251
+
+	measure 'Tradução - Texto 12 Meses Até' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "Texto 12 Meses Até", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: ab264c04-ae25-4c93-905a-1cfc34fb5e6c
+
+	measure 'Tradução - Texto Ano Referência' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "Texto Ano Referência", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: 4a5d6dc4-ecc1-452f-bbde-8213d1833c6d
+
+	measure 'Tradução - Texto Top 5 Destinos' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "Texto Top 5 Destinos", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: 61c4d393-6b9e-4624-824b-6febbeb3f452
+
+	measure 'Tradução - Texto Do Volume' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "Texto Do Volume", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: a18b2377-92d2-4d98-8d4d-741fe8d08bd6
+
+	measure 'Tradução - Texto Maior Emissora' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "Texto Maior Emissora", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: 8bf37f2b-6eab-481e-99d4-93abff9ef962
+
+	measure 'Tradução - Texto De' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "Texto De", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: ca7d81fb-8bbb-4475-a6d3-97fbec158366
+
+	measure 'Tradução - Texto Atividades Cresceram' =
+			VAR _idioma = [Tradução - Idioma]
+			RETURN
+			    CALCULATE(MAX('Tradução Textos'[Descrição]), 'Tradução Textos'[Tipo] = "Texto Atividades Cresceram", 'Tradução Textos'[idioma] = _idioma)
+		displayFolder: 9 Traduções
+		lineageTag: 930328fe-29f0-4158-bca9-a8cfbc682331
+
+	measure 'Destaque Ranking (ícone)' =
+			VAR _r = [Ranking no Ano]
+			VAR _max = MAXX(ALLSELECTED(fato_emissoes_usina[usina_nome]), [Ranking no Ano])
+			RETURN
+			    SWITCH(
+			        TRUE(),
+			        ISBLANK(_r), BLANK(),
+			        _r <= 5, "🏆",
+			        _r > _max - 5, "⚠️",
+			        BLANK()
+			    )
+		displayFolder: 3 Emissões
+		lineageTag: 4737de14-3f4d-430f-869e-37ed31554d98
+
+	measure 'Destaque Ranking (cor)' =
+			VAR _r = [Ranking no Ano]
+			VAR _max = MAXX(ALLSELECTED(fato_emissoes_usina[usina_nome]), [Ranking no Ano])
+			RETURN
+			    SWITCH(
+			        TRUE(),
+			        ISBLANK(_r), BLANK(),
+			        _r <= 5, "#C92A2A",
+			        _r > _max - 5, "#2F9E44",
+			        BLANK()
+			    )
+		displayFolder: 3 Emissões
+		lineageTag: 8eb0805f-18fc-44ab-9c1c-309f53ad803f
+
+	column Coluna
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 3264a93e-4f55-441a-b9d9-eafc96bfc711
+		summarizeBy: none
+		sourceColumn: Coluna
+
+		annotation SummarizationSetBy = Automatic
+
+	partition _Medidas = m
+		mode: import
+		source =
+				let
+				    Fonte = #table(type table [Coluna = Int64.Type], {})
+				in
+				    Fonte
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,104 @@
+table fato_emissoes_usina
+	lineageTag: 4ca1a920-c2ef-4294-8964-77cea107efba
+
+	column usina_id
+		dataType: string
+		isHidden
+		lineageTag: f5dbba42-2aac-4614-a634-8a7448b1bb8e
+		summarizeBy: none
+		sourceColumn: usina_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column usina_nome
+		dataType: string
+		lineageTag: b6247639-0598-453f-afa7-65ea95901733
+		summarizeBy: none
+		sourceColumn: usina_nome
+
+		annotation SummarizationSetBy = Automatic
+
+	column subsetor
+		dataType: string
+		isHidden
+		lineageTag: 52065753-0063-4b22-a92f-67d7af6551ed
+		summarizeBy: none
+		sourceColumn: subsetor
+
+		annotation SummarizationSetBy = Automatic
+
+	column latitude
+		dataType: double
+		formatString: 0.0000
+		lineageTag: cb78d79c-d3bf-4c1a-a228-0bb1446b20ad
+		summarizeBy: none
+		sourceColumn: latitude
+
+		annotation SummarizationSetBy = Automatic
+
+	column longitude
+		dataType: double
+		formatString: 0.0000
+		lineageTag: b0f40797-5b38-4a91-8db3-6f39db578d13
+		summarizeBy: none
+		sourceColumn: longitude
+
+		annotation SummarizationSetBy = Automatic
+
+	column ano
+		dataType: int64
+		formatString: 0
+		lineageTag: 08d8eeda-5463-4d1a-94de-77c31d6b34e2
+		summarizeBy: none
+		sourceColumn: ano
+
+		annotation SummarizationSetBy = Automatic
+
+	column emissoes_t_co2e
+		dataType: double
+		formatString: #,0
+		lineageTag: dc07cd48-8b54-4ef4-bf4d-e7c516055283
+		summarizeBy: sum
+		sourceColumn: emissoes_t_co2e
+
+		annotation SummarizationSetBy = Automatic
+
+	column ranking_no_ano
+		dataType: int64
+		formatString: 0
+		lineageTag: fca34c74-c3bd-473b-898b-effc9637a553
+		summarizeBy: none
+		sourceColumn: ranking_no_ano
+
+		annotation SummarizationSetBy = Automatic
+
+	column participacao_pct
+		dataType: double
+		formatString: 0.00
+		lineageTag: 2a78f2ba-eb5e-43c4-93ba-2f05a0c0307e
+		summarizeBy: none
+		sourceColumn: participacao_pct
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fato_emissoes_usina = m
+		mode: import
+		source =
+				let
+				    Fonte = Parquet.Document(File.Contents(PastaDados & "fato_emissoes_usina.parquet")),
+				    Tipos = Table.TransformColumnTypes(Fonte, {
+				        {"usina_id", type text},
+				        {"usina_nome", type text},
+				        {"subsetor", type text},
+				        {"latitude", type number},
+				        {"longitude", type number},
+				        {"ano", Int64.Type},
+				        {"emissoes_t_co2e", type number},
+				        {"ranking_no_ano", Int64.Type},
+				        {"participacao_pct", type number}
+				    })
+				in
+				    Tipos
+
+	annotation PBI_ResultType = Table
+

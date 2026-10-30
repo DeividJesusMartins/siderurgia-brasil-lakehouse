@@ -1,0 +1,36 @@
+model Model
+	culture: pt-BR
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: pt-BR
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation PBI_ProTooling = ["DevMode"]
+
+annotation __PBI_TimeIntelligenceEnabled = 0
+
+annotation PBI_QueryOrder = ["PastaDados", "dim_atividade", "dim_calendario", "fato_producao_industrial", "fato_exportacao_aco", "fato_emissoes_usina", "painel_siderurgia_mensal", "painel_emissoes_anual", "_Medidas", "Tradução Textos"]
+
+ref table dim_atividade
+ref table dim_calendario
+ref table fato_producao_industrial
+ref table fato_exportacao_aco
+ref table fato_emissoes_usina
+ref table painel_siderurgia_mensal
+ref table painel_emissoes_anual
+ref table _Medidas
+ref table 'Tradução Idiomas'
+ref table 'Tradução Textos'
+ref table 'Parâmetro - Tradução Meses'
+ref table 'Parâmetro - Séries Visão Geral'
+ref table 'Parâmetro - Séries Comparação'
+ref table 'Parâmetro - Séries Metalurgia'
+ref table 'Parâmetro - Volume Exportado'
+ref table 'Parâmetro - Dólar Médio'
+ref table 'Parâmetro - Tabela Atividades'
+ref table 'Parâmetro - Tabela Destinos'
+ref table 'Parâmetro - Tabela Usinas'
+
+ref cultureInfo pt-BR
+

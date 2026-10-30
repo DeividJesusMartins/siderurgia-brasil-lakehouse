@@ -1,0 +1,57 @@
+table 'Parâmetro - Séries Metalurgia'
+	lineageTag: 9ead7cca-b90e-4329-90f7-09b254030ae4
+
+	column Descrição
+		lineageTag: c8674470-9b57-4f9e-ae94-441da8d5758c
+		summarizeBy: none
+		sourceColumn: [Value1]
+		sortByColumn: Ordem
+
+		relatedColumnDetails
+			groupByColumn: Tradução
+
+		annotation SummarizationSetBy = Automatic
+
+	column Tradução
+		lineageTag: 76bafbe0-59a2-4c56-b5d1-dae3347d1106
+		summarizeBy: none
+		sourceColumn: [Value2]
+		sortByColumn: Ordem
+
+		extendedProperty ParameterMetadata =
+				{
+				  "version": 3,
+				  "kind": 2
+				}
+
+		annotation SummarizationSetBy = Automatic
+
+	column Ordem
+		isHidden
+		formatString: 0
+		lineageTag: 5f2c9e64-956f-4182-b65a-1ba76b72e99f
+		summarizeBy: none
+		sourceColumn: [Value3]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Idioma
+		isHidden
+		lineageTag: ed50cb1c-3d0f-4aa4-a604-7ab11aee6fc0
+		summarizeBy: none
+		sourceColumn: [Value4]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Parâmetro - Séries Metalurgia' = calculated
+		mode: import
+		source =
+				{
+				    ("Metalurgia (dessaz.)", NAMEOF(_Medidas[Índice Metalurgia (dessaz.)]), 0, "pt"),
+				    ("Média móvel 3m", NAMEOF(_Medidas[Metalurgia Média Móvel 3m]), 1, "pt"),
+				    ("Metallurgy (SA)", NAMEOF(_Medidas[Índice Metalurgia (dessaz.)]), 0, "en"),
+				    ("3-month moving avg.", NAMEOF(_Medidas[Metalurgia Média Móvel 3m]), 1, "en"),
+				    ("Metalurgia (desest.)", NAMEOF(_Medidas[Índice Metalurgia (dessaz.)]), 0, "es"),
+				    ("Media móvil 3m", NAMEOF(_Medidas[Metalurgia Média Móvel 3m]), 1, "es")
+				}
+

@@ -1,0 +1,228 @@
+table 'Tradução Textos'
+	lineageTag: 85b26d65-b335-47be-ab9f-d6d2bbe5d522
+
+	column Descrição
+		dataType: string
+		isHidden
+		lineageTag: 2f46b64e-af86-49d1-b1d6-322f53c6c7bb
+		summarizeBy: none
+		sourceColumn: Descrição
+
+		annotation SummarizationSetBy = Automatic
+
+	column idioma
+		dataType: string
+		isHidden
+		lineageTag: 9719f885-9dec-4785-9c0a-610a5582bfbd
+		summarizeBy: none
+		sourceColumn: idioma
+
+		annotation SummarizationSetBy = Automatic
+
+	column Tipo
+		dataType: string
+		isHidden
+		lineageTag: d32fe146-f07c-4050-afb6-0f85536f3b47
+		summarizeBy: none
+		sourceColumn: Tipo
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Tradução Textos' = m
+		mode: import
+		source =
+				let
+				    // Descrição = texto exibido · idioma = pt/en/es · Tipo = chave usada pelas medidas "Tradução - <Tipo>"
+				    Fonte = #table(
+				        type table [Descrição = text, idioma = text, Tipo = text],
+				        {
+				        {"Visão Geral", "pt", "Nav Visão Geral"},
+				        {"Overview", "en", "Nav Visão Geral"},
+				        {"Visión General", "es", "Nav Visão Geral"},
+				        {"Produção", "pt", "Nav Produção"},
+				        {"Production", "en", "Nav Produção"},
+				        {"Producción", "es", "Nav Produção"},
+				        {"Exportações", "pt", "Nav Exportações"},
+				        {"Exports", "en", "Nav Exportações"},
+				        {"Exportaciones", "es", "Nav Exportações"},
+				        {"Emissões", "pt", "Nav Emissões"},
+				        {"Emissions", "en", "Nav Emissões"},
+				        {"Emisiones", "es", "Nav Emissões"},
+				        {"Panorama da Siderurgia Brasileira", "pt", "Título Visão Geral"},
+				        {"Brazilian Steel Industry Overview", "en", "Título Visão Geral"},
+				        {"Panorama de la Siderurgia Brasileña", "es", "Título Visão Geral"},
+				        {"Produção (IBGE) · Exportações (MDIC) · Câmbio (BCB) · Emissões (Climate TRACE)", "pt", "Subtítulo Visão Geral"},
+				        {"Production (IBGE) · Exports (MDIC) · Exchange rate (BCB) · Emissions (Climate TRACE)", "en", "Subtítulo Visão Geral"},
+				        {"Producción (IBGE) · Exportaciones (MDIC) · Tipo de cambio (BCB) · Emisiones (Climate TRACE)", "es", "Subtítulo Visão Geral"},
+				        {"Produção Industrial", "pt", "Título Produção"},
+				        {"Industrial Production", "en", "Título Produção"},
+				        {"Producción Industrial", "es", "Título Produção"},
+				        {"Pesquisa Industrial Mensal – Produção Física (IBGE, tabela 8888) · índice 2022 = 100", "pt", "Subtítulo Produção"},
+				        {"Monthly Industrial Survey – Physical Production (IBGE, table 8888) · index 2022 = 100", "en", "Subtítulo Produção"},
+				        {"Encuesta Industrial Mensual – Producción Física (IBGE, tabla 8888) · índice 2022 = 100", "es", "Subtítulo Produção"},
+				        {"Exportações de Aço", "pt", "Título Exportações"},
+				        {"Steel Exports", "en", "Título Exportações"},
+				        {"Exportaciones de Acero", "es", "Título Exportações"},
+				        {"Comex Stat (MDIC) · capítulo 72 do SH (ferro e aço) · valores FOB", "pt", "Subtítulo Exportações"},
+				        {"Comex Stat (MDIC) · HS chapter 72 (iron and steel) · FOB values", "en", "Subtítulo Exportações"},
+				        {"Comex Stat (MDIC) · capítulo 72 del SA (hierro y acero) · valores FOB", "es", "Subtítulo Exportações"},
+				        {"Emissões de Gases de Efeito Estufa", "pt", "Título Emissões"},
+				        {"Greenhouse Gas Emissions", "en", "Título Emissões"},
+				        {"Emisiones de Gases de Efecto Invernadero", "es", "Título Emissões"},
+				        {"Climate TRACE · usinas de ferro e aço no Brasil · t CO₂e (GWP 100 anos)", "pt", "Subtítulo Emissões"},
+				        {"Climate TRACE · iron and steel plants in Brazil · t CO₂e (100-year GWP)", "en", "Subtítulo Emissões"},
+				        {"Climate TRACE · plantas de hierro y acero en Brasil · t CO₂e (GWP 100 años)", "es", "Subtítulo Emissões"},
+				        {"Ano", "pt", "Filtro Ano"},
+				        {"Year", "en", "Filtro Ano"},
+				        {"Año", "es", "Filtro Ano"},
+				        {"Mês", "pt", "Filtro Mês"},
+				        {"Month", "en", "Filtro Mês"},
+				        {"Mes", "es", "Filtro Mês"},
+				        {"País de destino", "pt", "Filtro País"},
+				        {"Destination country", "en", "Filtro País"},
+				        {"País de destino", "es", "Filtro País"},
+				        {"Usina", "pt", "Filtro Usina"},
+				        {"Plant", "en", "Filtro Usina"},
+				        {"Planta", "es", "Filtro Usina"},
+				        {"Atividade industrial", "pt", "Filtro Atividade"},
+				        {"Industrial activity", "en", "Filtro Atividade"},
+				        {"Actividad industrial", "es", "Filtro Atividade"},
+				        {"Produto (SH4)", "pt", "Filtro Produto"},
+				        {"Product (HS4)", "en", "Filtro Produto"},
+				        {"Producto (SA4)", "es", "Filtro Produto"},
+				        {"Metalurgia · índice dessaz.", "pt", "KPI Metalurgia"},
+				        {"Metallurgy · SA index", "en", "KPI Metalurgia"},
+				        {"Metalurgia · índice desest.", "es", "KPI Metalurgia"},
+				        {"Transformação · índice dessaz.", "pt", "KPI Transformação"},
+				        {"Manufacturing · SA index", "en", "KPI Transformação"},
+				        {"Transformación · índice desest.", "es", "KPI Transformação"},
+				        {"Indústria geral · índice dessaz.", "pt", "KPI Indústria Geral"},
+				        {"Total industry · SA index", "en", "KPI Indústria Geral"},
+				        {"Industria general · índice desest.", "es", "KPI Indústria Geral"},
+				        {"Atividades em alta (12m)", "pt", "KPI Atividades em Alta"},
+				        {"Activities growing (12m)", "en", "KPI Atividades em Alta"},
+				        {"Actividades en alza (12m)", "es", "KPI Atividades em Alta"},
+				        {"Exportações · 12m (mil t)", "pt", "KPI Exportações 12m"},
+				        {"Exports · 12m (k t)", "en", "KPI Exportações 12m"},
+				        {"Exportaciones · 12m (mil t)", "es", "KPI Exportações 12m"},
+				        {"Volume · 12m (mil t)", "pt", "KPI Volume 12m"},
+				        {"Volume · 12m (k t)", "en", "KPI Volume 12m"},
+				        {"Volumen · 12m (mil t)", "es", "KPI Volume 12m"},
+				        {"Preço médio · 12m (US$/t)", "pt", "KPI Preço 12m"},
+				        {"Average price · 12m (US$/t)", "en", "KPI Preço 12m"},
+				        {"Precio medio · 12m (US$/t)", "es", "KPI Preço 12m"},
+				        {"Receita FOB · 12m (US$ mi)", "pt", "KPI Receita FOB"},
+				        {"FOB revenue · 12m (US$ M)", "en", "KPI Receita FOB"},
+				        {"Ingresos FOB · 12m (US$ mill.)", "es", "KPI Receita FOB"},
+				        {"Países de destino · 12m", "pt", "KPI Países 12m"},
+				        {"Destination countries · 12m", "en", "KPI Países 12m"},
+				        {"Países de destino · 12m", "es", "KPI Países 12m"},
+				        {"Emissões do setor (Mt CO₂e)", "pt", "KPI Emissões Setor"},
+				        {"Sector emissions (Mt CO₂e)", "en", "KPI Emissões Setor"},
+				        {"Emisiones del sector (Mt CO₂e)", "es", "KPI Emissões Setor"},
+				        {"Usinas monitoradas", "pt", "KPI Usinas"},
+				        {"Monitored plants", "en", "KPI Usinas"},
+				        {"Plantas monitoreadas", "es", "KPI Usinas"},
+				        {"3 maiores usinas · participação", "pt", "KPI Top 3"},
+				        {"Top 3 plants · share", "en", "KPI Top 3"},
+				        {"3 mayores plantas · participación", "es", "KPI Top 3"},
+				        {"Maior emissora · participação", "pt", "KPI Maior Emissora"},
+				        {"Top emitter · share", "en", "KPI Maior Emissora"},
+				        {"Mayor emisora · participación", "es", "KPI Maior Emissora"},
+				        {"Produção física (2022 = 100, dessazonalizada)", "pt", "Gráfico Produção Física"},
+				        {"Physical production (2022 = 100, seasonally adjusted)", "en", "Gráfico Produção Física"},
+				        {"Producción física (2022 = 100, desestacionalizada)", "es", "Gráfico Produção Física"},
+				        {"Exportações de aço (mil t) × dólar médio (R$/US$)", "pt", "Gráfico Exportações x Dólar"},
+				        {"Steel exports (k t) × average dollar (R$/US$)", "en", "Gráfico Exportações x Dólar"},
+				        {"Exportaciones de acero (mil t) × dólar medio (R$/US$)", "es", "Gráfico Exportações x Dólar"},
+				        {"Top 10 destinos (mil t, período filtrado)", "pt", "Gráfico Top Destinos Período"},
+				        {"Top 10 destinations (k t, filtered period)", "en", "Gráfico Top Destinos Período"},
+				        {"Top 10 destinos (mil t, período filtrado)", "es", "Gráfico Top Destinos Período"},
+				        {"Top 10 produtos exportados (mil t)", "pt", "Gráfico Top Produtos"},
+				        {"Top 10 exported products (k t)", "en", "Gráfico Top Produtos"},
+				        {"Top 10 productos exportados (mil t)", "es", "Gráfico Top Produtos"},
+				        {"5 usinas que mais emitem (Mt CO₂e)", "pt", "Gráfico Top Usinas"},
+				        {"Top 5 emitting plants (Mt CO₂e)", "en", "Gráfico Top Usinas"},
+				        {"5 plantas que más emiten (Mt CO₂e)", "es", "Gráfico Top Usinas"},
+				        {"Metalurgia × transformação × indústria geral (dessazonalizado)", "pt", "Gráfico Comparação"},
+				        {"Metallurgy × manufacturing × total industry (seasonally adjusted)", "en", "Gráfico Comparação"},
+				        {"Metalurgia × transformación × industria general (desestacionalizado)", "es", "Gráfico Comparação"},
+				        {"Variação em 12 meses por atividade (último mês)", "pt", "Gráfico Ranking Atividades"},
+				        {"12-month change by activity (latest month)", "en", "Gráfico Ranking Atividades"},
+				        {"Variación en 12 meses por actividad (último mes)", "es", "Gráfico Ranking Atividades"},
+				        {"Metalurgia: índice e média móvel 3m", "pt", "Gráfico Série Metalurgia"},
+				        {"Metallurgy: index and 3-month moving average", "en", "Gráfico Série Metalurgia"},
+				        {"Metalurgia: índice y media móvil 3m", "es", "Gráfico Série Metalurgia"},
+				        {"Atividades: índice e variação (último mês)", "pt", "Gráfico Tabela Atividades"},
+				        {"Activities: index and change (latest month)", "en", "Gráfico Tabela Atividades"},
+				        {"Actividades: índice y variación (último mes)", "es", "Gráfico Tabela Atividades"},
+				        {"Top 10 destinos (mil t)", "pt", "Gráfico Top Destinos"},
+				        {"Top 10 destinations (k t)", "en", "Gráfico Top Destinos"},
+				        {"Top 10 destinos (mil t)", "es", "Gráfico Top Destinos"},
+				        {"Preço médio exportado (US$/t)", "pt", "Gráfico Preço Médio"},
+				        {"Average export price (US$/t)", "en", "Gráfico Preço Médio"},
+				        {"Precio medio exportado (US$/t)", "es", "Gráfico Preço Médio"},
+				        {"Top 10 produtos – posição SH4 (mil t)", "pt", "Gráfico Top Produtos SH4"},
+				        {"Top 10 products – HS4 heading (k t)", "en", "Gráfico Top Produtos SH4"},
+				        {"Top 10 productos – partida SA4 (mil t)", "es", "Gráfico Top Produtos SH4"},
+				        {"Destinos no período filtrado", "pt", "Gráfico Tabela Destinos"},
+				        {"Destinations in the filtered period", "en", "Gráfico Tabela Destinos"},
+				        {"Destinos en el período filtrado", "es", "Gráfico Tabela Destinos"},
+				        {"Volume exportado (mil t) × dólar médio (R$/US$)", "pt", "Gráfico Volume x Dólar"},
+				        {"Export volume (k t) × average dollar (R$/US$)", "en", "Gráfico Volume x Dólar"},
+				        {"Volumen exportado (mil t) × dólar medio (R$/US$)", "es", "Gráfico Volume x Dólar"},
+				        {"Emissões totais do setor por ano (Mt CO₂e)", "pt", "Gráfico Emissões por Ano"},
+				        {"Total sector emissions per year (Mt CO₂e)", "en", "Gráfico Emissões por Ano"},
+				        {"Emisiones totales del sector por año (Mt CO₂e)", "es", "Gráfico Emissões por Ano"},
+				        {"Ranking de usinas", "pt", "Gráfico Ranking Usinas"},
+				        {"Plant ranking", "en", "Gráfico Ranking Usinas"},
+				        {"Ranking de plantas", "es", "Gráfico Ranking Usinas"},
+				        {"Emissões por usina no ano de referência (Mt CO₂e)", "pt", "Gráfico Emissões por Usina"},
+				        {"Emissions by plant in the reference year (Mt CO₂e)", "en", "Gráfico Emissões por Usina"},
+				        {"Emisiones por planta en el año de referencia (Mt CO₂e)", "es", "Gráfico Emissões por Usina"},
+				        {"Estimativas independentes do Climate TRACE (sensoriamento remoto e dados abertos). Podem divergir dos inventários oficiais das empresas e não avaliam o desempenho de nenhuma delas.", "pt", "Nota Emissões"},
+				        {"Independent Climate TRACE estimates (remote sensing and open data). They may differ from the companies' official inventories and do not assess the performance of any of them.", "en", "Nota Emissões"},
+				        {"Estimaciones independientes de Climate TRACE (teledetección y datos abiertos). Pueden diferir de los inventarios oficiales de las empresas y no evalúan el desempeño de ninguna de ellas.", "es", "Nota Emissões"},
+				        {"sem base de comparação", "pt", "Sem Base"},
+				        {"no comparison base", "en", "Sem Base"},
+				        {"sin base de comparación", "es", "Sem Base"},
+				        {"vs mesmo mês do ano anterior", "pt", "Sufixo Mesmo Mês"},
+				        {"vs same month last year", "en", "Sufixo Mesmo Mês"},
+				        {"vs mismo mes del año anterior", "es", "Sufixo Mesmo Mês"},
+				        {"vs 12 meses anteriores", "pt", "Sufixo 12 Meses"},
+				        {"vs previous 12 months", "en", "Sufixo 12 Meses"},
+				        {"vs 12 meses anteriores", "es", "Sufixo 12 Meses"},
+				        {"vs ano anterior", "pt", "Sufixo Ano Anterior"},
+				        {"vs previous year", "en", "Sufixo Ano Anterior"},
+				        {"vs año anterior", "es", "Sufixo Ano Anterior"},
+				        {"Índice 2022 = 100 · referência", "pt", "Texto Índice Base"},
+				        {"Index 2022 = 100 · reference", "en", "Texto Índice Base"},
+				        {"Índice 2022 = 100 · referencia", "es", "Texto Índice Base"},
+				        {"12 meses até", "pt", "Texto 12 Meses Até"},
+				        {"12 months to", "en", "Texto 12 Meses Até"},
+				        {"12 meses hasta", "es", "Texto 12 Meses Até"},
+				        {"Ano de referência", "pt", "Texto Ano Referência"},
+				        {"Reference year", "en", "Texto Ano Referência"},
+				        {"Año de referencia", "es", "Texto Ano Referência"},
+				        {"Top 5 destinos", "pt", "Texto Top 5 Destinos"},
+				        {"Top 5 destinations", "en", "Texto Top 5 Destinos"},
+				        {"Top 5 destinos", "es", "Texto Top 5 Destinos"},
+				        {"do volume", "pt", "Texto Do Volume"},
+				        {"of volume", "en", "Texto Do Volume"},
+				        {"del volumen", "es", "Texto Do Volume"},
+				        {"Maior emissora", "pt", "Texto Maior Emissora"},
+				        {"Top emitter", "en", "Texto Maior Emissora"},
+				        {"Mayor emisora", "es", "Texto Maior Emissora"},
+				        {"de", "pt", "Texto De"},
+				        {"of", "en", "Texto De"},
+				        {"de", "es", "Texto De"},
+				        {"atividades cresceram em 12m", "pt", "Texto Atividades Cresceram"},
+				        {"activities grew over 12m", "en", "Texto Atividades Cresceram"},
+				        {"actividades crecieron en 12m", "es", "Texto Atividades Cresceram"}
+				        }
+				    )
+				in
+				    Fonte
+
+	annotation PBI_ResultType = Table
+

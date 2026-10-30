@@ -1,0 +1,66 @@
+table 'Parâmetro - Tabela Usinas'
+	lineageTag: 392b3917-7bfe-460c-bb3d-6dd1ad4a3626
+
+	column Descrição
+		lineageTag: 7a55ec2e-36d6-4e62-a9c8-bed5ebb52ece
+		summarizeBy: none
+		sourceColumn: [Value1]
+		sortByColumn: Ordem
+
+		relatedColumnDetails
+			groupByColumn: Tradução
+
+		annotation SummarizationSetBy = Automatic
+
+	column Tradução
+		lineageTag: f9bebc2b-894f-4eb3-bc18-62437e365059
+		summarizeBy: none
+		sourceColumn: [Value2]
+		sortByColumn: Ordem
+
+		extendedProperty ParameterMetadata =
+				{
+				  "version": 3,
+				  "kind": 2
+				}
+
+		annotation SummarizationSetBy = Automatic
+
+	column Ordem
+		isHidden
+		formatString: 0
+		lineageTag: a6e134d0-2818-47ae-b0ab-f8c839b74dad
+		summarizeBy: sum
+		sourceColumn: [Value3]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Idioma
+		isHidden
+		lineageTag: 22341da6-ede9-43fc-a0c1-f578d342254b
+		summarizeBy: none
+		sourceColumn: [Value4]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Parâmetro - Tabela Usinas' = calculated
+		mode: import
+		source =
+				{
+				    ("Usina", NAMEOF(fato_emissoes_usina[usina_nome]), 0, "pt"),
+				    (" ", NAMEOF(_Medidas[Destaque Ranking (ícone)]), 1, "pt"),
+				    ("Ranking", NAMEOF(_Medidas[Ranking no Ano]), 2, "pt"),
+				    ("Emissões (Mt CO₂e)", NAMEOF(_Medidas[Emissões no Ano (Mt CO2e)]), 3, "pt"),
+				    ("Participação", NAMEOF(_Medidas[Participação no Setor %]), 4, "pt"),
+				    ("Plant", NAMEOF(fato_emissoes_usina[usina_nome]), 0, "en"),
+				    (" ", NAMEOF(_Medidas[Destaque Ranking (ícone)]), 1, "en"),
+				    ("Rank", NAMEOF(_Medidas[Ranking no Ano]), 2, "en"),
+				    ("Emissions (Mt CO₂e)", NAMEOF(_Medidas[Emissões no Ano (Mt CO2e)]), 3, "en"),
+				    ("Share", NAMEOF(_Medidas[Participação no Setor %]), 4, "en"),
+				    ("Planta", NAMEOF(fato_emissoes_usina[usina_nome]), 0, "es"),
+				    (" ", NAMEOF(_Medidas[Destaque Ranking (ícone)]), 1, "es"),
+				    ("Ranking", NAMEOF(_Medidas[Ranking no Ano]), 2, "es"),
+				    ("Emisiones (Mt CO₂e)", NAMEOF(_Medidas[Emissões no Ano (Mt CO2e)]), 3, "es"),
+				    ("Participación", NAMEOF(_Medidas[Participação no Setor %]), 4, "es")
+				}
+

@@ -1,0 +1,74 @@
+table painel_emissoes_anual
+	lineageTag: dbadd47d-0f1f-49e2-b9c5-9ce732eb6ea5
+
+	column ano
+		dataType: int64
+		formatString: 0
+		lineageTag: 486907f9-96f1-4db3-b586-e29f6a058ffd
+		summarizeBy: none
+		sourceColumn: ano
+
+		annotation SummarizationSetBy = Automatic
+
+	column emissoes_total_t_co2e
+		dataType: double
+		formatString: #,0
+		lineageTag: 7e20569d-eeb8-4733-bd6c-cc8cf21cf86f
+		summarizeBy: sum
+		sourceColumn: emissoes_total_t_co2e
+
+		annotation SummarizationSetBy = Automatic
+
+	column qtd_usinas
+		dataType: int64
+		formatString: 0
+		lineageTag: b0175aa2-23c2-41bf-afbc-48529bfb1023
+		summarizeBy: none
+		sourceColumn: qtd_usinas
+
+		annotation SummarizationSetBy = Automatic
+
+	column maior_emissora
+		dataType: string
+		lineageTag: a9819f07-1cbe-4b8b-ab64-40ecd96a3582
+		summarizeBy: none
+		sourceColumn: maior_emissora
+
+		annotation SummarizationSetBy = Automatic
+
+	column participacao_maior_emissora_pct
+		dataType: double
+		formatString: 0.00
+		lineageTag: bc8f2e5e-a60b-46e9-ad45-6c879d241b65
+		summarizeBy: none
+		sourceColumn: participacao_maior_emissora_pct
+
+		annotation SummarizationSetBy = Automatic
+
+	column var_ano_anterior_pct
+		dataType: double
+		formatString: 0.00
+		lineageTag: c260802d-11e9-4106-a0a1-1c9ae3e87885
+		summarizeBy: none
+		sourceColumn: var_ano_anterior_pct
+
+		annotation SummarizationSetBy = Automatic
+
+	partition painel_emissoes_anual = m
+		mode: import
+		source =
+				let
+				    Fonte = Parquet.Document(File.Contents(PastaDados & "painel_emissoes_anual.parquet")),
+				    Tipos = Table.TransformColumnTypes(Fonte, {
+				        {"ano", Int64.Type},
+				        {"emissoes_total_t_co2e", type number},
+				        {"qtd_usinas", Int64.Type},
+				        {"maior_emissora", type text},
+				        {"participacao_maior_emissora_pct", type number},
+				        {"var_ano_anterior_pct", type number}
+				    })
+				in
+				    Tipos
+
+	annotation PBI_ResultType = Table
+
