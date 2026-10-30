@@ -7,7 +7,7 @@
 ![PySpark](https://img.shields.io/badge/PySpark-3.5-E25A1C?logo=apachespark&logoColor=white)
 ![Delta Lake](https://img.shields.io/badge/Delta_Lake-3.2-00ADD4)
 ![Databricks](https://img.shields.io/badge/Databricks-Asset_Bundles-FF3621?logo=databricks&logoColor=white)
-![Power BI](https://img.shields.io/badge/Power_BI-PBIP-F2C811?logo=powerbi&logoColor=black)
+![Power BI](https://img.shields.io/badge/Power_BI-PBIP-F2C811?labelColor=555555)
 
 Projeto de engenharia de dados ponta a ponta sobre a **siderurgia brasileira**, da coleta em APIs públicas até um dashboard no Power BI. Ele integra **quatro APIs** com formatos diferentes:
 - produção industrial do **IBGE**;
@@ -17,7 +17,7 @@ Projeto de engenharia de dados ponta a ponta sobre a **siderurgia brasileira**, 
 
 Os dados passam por uma **arquitetura medalhão (bronze → silver → gold)** com **PySpark + Delta Lake**, saem num modelo dimensional e alimentam um **dashboard Power BI em PBIP**, com 4 páginas e tradução **pt / en / es**.
 
-O mesmo código roda **na sua máquina** (Delta por caminho) e **no Databricks** (Unity Catalog + Jobs serverless). O projeto inclui testes automatizados, CI/CD e infraestrutura como código, e já foi executado de ponta a ponta com os dados reais das quatro APIs.
+O pipeline foi executado de ponta a ponta **localmente** (Spark + Delta por caminho), com os dados reais das quatro APIs. O mesmo código também está **pronto para o Databricks** (Unity Catalog + Jobs serverless via Asset Bundle), com testes automatizados, CI/CD e infraestrutura como código.
 
 > Todos os dados são **públicos e oficiais**. Nenhum dado interno de empresa é usado.
 
@@ -50,7 +50,7 @@ flowchart LR
     DQ{{Data Quality}} -.-> S & G
 ```
 
-**Job no Databricks:** as 4 ingestões rodam em paralelo, então uma API lenta não atrasa as outras. Cada silver depende só da sua bronze, e a gold espera todas.
+**Job no Databricks (configurado no bundle):** as 4 ingestões rodam em paralelo, então uma API lenta não atrasa as outras. Cada silver depende só da sua bronze, e a gold espera todas.
 
 | Camada | Estratégia | Por quê |
 |---|---|---|
@@ -92,10 +92,10 @@ Detalhes de cada tabela e coluna em [`docs/modelo_de_dados.md`](docs/modelo_de_d
   - fluxo ponta a ponta com carga incremental, revisão de dados e falha de uma fonte;
   - integração com Delta real (MERGE, replaceWhere e Time Travel).
 
-**Operação (DataOps)**
+**Operação (DataOps)** — configuração pronta para publicar no Databricks; a execução validada até aqui foi local
 - **Databricks Asset Bundle**: DAG de 9 tasks em serverless, com retry por fonte, alerta por e-mail e job semanal de `OPTIMIZE ZORDER` + `VACUUM`.
 - **Unity Catalog**: catálogos por ambiente (`_dev` / prod), schemas por camada, Volume para a landing e `GRANT` por grupo.
-- **CI** (GitHub Actions): ruff, pytest, testes Delta e build do wheel. **CD**: `bundle deploy -t prod` depois que a CI passa na `main`.
+- **CI** (GitHub Actions): ruff, pytest, testes Delta e build do wheel. **CD**: `bundle deploy -t prod` depois que a CI passa na `main`, ativado só quando o workspace é configurado nos *secrets* do repositório.
 
 **Consumo (BI)**
 - Dashboard **Power BI em PBIP**: modelo em TMDL e relatório em PBIR, tudo em texto e versionado neste repositório.
@@ -193,6 +193,8 @@ python -m siderurgia_lakehouse --help
 
 ### No Databricks
 
+> Opcional: o projeto roda completo sem Databricks. Estes passos publicam o mesmo código num workspace.
+
 ```bash
 # 1. Uma vez: crie os catálogos (sql/00_setup_unity_catalog.sql) e ajuste o host em databricks.yml
 databricks auth login --host https://SEU-WORKSPACE.cloud.databricks.com
@@ -219,7 +221,7 @@ Depois, explore com as consultas de [`sql/01_consultas_gold.sql`](sql/01_consult
 
 ## ✅ Execução com dados reais
 
-O pipeline completo já rodou contra as quatro APIs e publicou as **7 tabelas da gold**, com o *data quality* aprovado. Os alertas registrados mostram que as checagens funcionam como esperado:
+O pipeline completo já rodou localmente contra as quatro APIs e publicou as **7 tabelas da gold**, com o *data quality* aprovado. Os alertas registrados mostram que as checagens funcionam como esperado:
 - valores marcados como indisponíveis pelo IBGE (`..`, `X`), tratados como nulos e contabilizados;
 - preços por tonelada fora da faixa típica em **ferroligas**, produto de valor unitário bem acima do aço comum;
 - um mês recente ainda sem divulgação do IBGE, coberto pela janela de reprocessamento na próxima carga.
