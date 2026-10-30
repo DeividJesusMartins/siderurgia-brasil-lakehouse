@@ -38,29 +38,23 @@ Plataforma de engenharia de dados ponta a ponta sobre a **siderurgia brasileira*
 
 ## 📐 Arquitetura
 
-```
- ┌──────────────────────────────────────────────────────────────┐
- │  APIs públicas: IBGE · MDIC Comex Stat · Climate TRACE · BCB │
- └──────────────────────────────┬───────────────────────────────┘
-                                │ 1. HTTP com retry, controle de 429 e carga incremental
-                                ▼
- ┌──────────────────────────────────────────────────────────────┐
- │  Landing (JSON bruto por fonte e lote)                       │
- └──────────────────────────────┬───────────────────────────────┘
-                                │ 2. Pipeline PySpark + Delta Lake
-                                ▼
- ┌──────────────────────────────────────────────────────────────┐
- │  bronze: 1 tabela por fonte · payload JSON · append          │
- │  silver: parsing, validação, dedup · MERGE / replaceWhere    │
- │          └── quarentena: registros rejeitados com o motivo   │
- │  gold:   modelo estrela + painéis de 12 meses                │
- │  data quality entre camadas (erro bloqueia · alerta registra)│
- └──────────────────────────────┬───────────────────────────────┘
-                                │ 3. scripts/exportar_powerbi.py (Parquet)
-                                ▼
- ┌──────────────────────────────────────────────────────────────┐
- │  📊 Power BI (PBIP) · 4 páginas · pt / en / es               │
- └──────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart LR
+    subgraph APIs públicas
+        A1[IBGE SIDRA<br/>PIM-PF]
+        A2[MDIC<br/>Comex Stat]
+        A3[Climate TRACE<br/>v7 beta]
+        A4[Banco Central<br/>SGS]
+    end
+
+    A1 & A2 & A3 & A4 -->|HTTP + retry<br/>em paralelo| L[/Landing<br/>JSON bruto/]
+    L --> B[(🥉 Bronze<br/>1 tabela por fonte<br/>payload JSON · append)]
+    B -->|parse · tipagem<br/>validação · dedup| S[(🥈 Silver<br/>1 tabela por assunto<br/>MERGE / replaceWhere)]
+    B -.->|rejeitados| Q[(Quarentena)]
+    S -->|modelagem<br/>janelas 12m| G[(🥇 Gold<br/>dimensões · fatos · painéis)]
+    G -->|exportar_powerbi.py<br/>Parquet| BI[📈 Power BI<br/>PBIP · pt/en/es]
+    G --> SQL[Databricks SQL]
+    DQ{{Data Quality}} -.-> S & G
 ```
 
 ## 🗂️ Modelo de dados
@@ -131,10 +125,9 @@ Para publicar no Databricks: `databricks bundle deploy -t dev`. Passo a passo co
 - [`docs/modelo_de_dados.md`](docs/modelo_de_dados.md) — dicionário de dados
 - [`docs/dashboard.md`](docs/dashboard.md) — páginas, medidas e tradução do Power BI
 
-## 👨‍💻 Autor
+## 👤 Autor
 
-**Deivid Martins** — Analista de Dados com foco em Engenharia de Dados (Databricks, PySpark, SQL, Power BI).
-
+**Deivid Martins** — Analista de Dados com foco em Engenharia de Dados (Databricks, PySpark, SQL, Power BI), atuando em projetos de dados para o setor siderúrgico.
 [LinkedIn](https://www.linkedin.com/in/deividmartins) · [GitHub](https://github.com/DeividJesusMartins)
 
 Licença [MIT](LICENSE).
