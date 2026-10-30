@@ -197,14 +197,6 @@ Depois, abra `powerbi/SiderurgiaBrasil.pbip`, aponte o parâmetro `PastaDados` p
 - **Por que não particionar as tabelas?** Com dezenas de milhares de linhas, partições gerariam arquivos minúsculos. A manutenção semanal usa `ZORDER`. Em volume maior, o caminho seria *Liquid Clustering*.
 - **Por que PySpark para esse volume?** Para demonstrar o padrão que escala. O mesmo código processaria milhões de linhas sem mudar a arquitetura.
 
-## 🔭 Próximos passos
-
-- [x] Dashboard no Power BI sobre a gold (PBIP, pt/en/es)
-- [ ] Versão do dashboard em Databricks AI/BI
-- [ ] Importações de aço (mesma API, `flow: import`) e balança comercial do setor
-- [ ] Migrar a silver para Lakeflow Declarative Pipelines com *expectations* nativas
-- [ ] Produção física em toneladas (Instituto Aço Brasil) para calcular intensidade de emissões
-
 ## 👤 Autor
 
 **Deivid Martins** — Analista de Dados com foco em Engenharia de Dados (Databricks, PySpark, SQL, Power BI), atuando em projetos de dados para o setor siderúrgico.
